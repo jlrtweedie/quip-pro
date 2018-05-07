@@ -1,0 +1,5 @@
+env/
+flask_session/
+
+secrets.sh
+*.pyc
