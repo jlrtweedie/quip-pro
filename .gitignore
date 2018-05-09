@@ -1,4 +1,5 @@
 env/
+test/
 flask_session/
 
 secrets.sh
