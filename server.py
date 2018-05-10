@@ -13,9 +13,19 @@ thread = None
 thread_lock = Lock()
 
 
+def background_thread():
+    count = 0
+    while True:
+        socketio.sleep(10)
+        count += 1
+
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@socketio.on('my_ping', namespace='/test')
+def ping_pong():
+    emit('my_pong')
 
 
 if __name__ == '__main__':
