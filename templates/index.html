@@ -10,37 +10,8 @@
 </head>
 <body>
 
-  <div id="test"></div>
-  <p>Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
-  <script src="../static/js/test.js" type="text/babel"></script>
-
-  <script type="text/javascript">
-
-    $(document).ready(() => {
-      namespace = '/test';
-
-      let socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-      let ping_pong_times = [];
-      let start_time;
-
-      window.setInterval(() => {
-        start_time = (new Date).getTime();
-        socket.emit('my_ping');
-      }, 1000);
-
-      socket.on('my_pong', () => {
-        let latency = (new Date).getTime() - start_time;
-        ping_pong_times.push(latency);
-        ping_pong_times = ping_pong_times.slice(-30);
-        let sum = 0;
-        for (let i = 0; i < ping_pong_times.length; i++) {
-          sum += ping_pong_times[i];
-        }
-        $('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
-      });
-    });
-
-  </script>
+  <div id="ping-pong"></div>
+  <script src="../static/js/ping.js" type="text/babel"></script>
 
 </body>
 </html>

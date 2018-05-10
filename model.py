@@ -23,7 +23,6 @@ class Account(db.Model):
 	@validates('email')
 	def validate_email(self, key, accounts):
 		assert '@' in accounts
-		assert '.' in accounts
 		return accounts
 
 
