@@ -1,10 +1,10 @@
-import { Socket } from 'socket.js';
+let socket = io.connect(location.protocol + '//' + document.domain +
+                        ':' + location.port + '/test');
 
 class Ping extends React.Component {
 	constructor(props) {
   	super(props);
   	this.state = { start_time: (new Date).getTime() };
-  	this.socket = Socket.getValue();
   	this.ping_pong_times = [];
   }
 
@@ -15,14 +15,14 @@ class Ping extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-  	this.socket.on('my_pong', () => this.pong());
+  	socket.on('my_pong', () => this.pong());
   }
 
   ping() {
   	this.setState({
   		start_time: (new Date).getTime()
   	});
-  	this.socket.emit('my_ping');
+  	socket.emit('my_ping');
   }
 
   pong() {

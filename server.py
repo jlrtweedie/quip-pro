@@ -3,6 +3,9 @@ from threading import Lock
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from flask_login import LoginManager
+from model import Account, Game, Player, connect_to_db
+from bcrypt import checkpw
 
 
 async_mode = None
@@ -11,6 +14,8 @@ app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
+login_manager = LoginManager()
+connect_to_db(app)
 
 
 def background_thread():
@@ -26,6 +31,27 @@ def index():
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():
     emit('my_pong')
+
+@socketio.on('login', namespace='/test')
+def login(message):
+    # print(message)
+    account = Account.query.filter(Account.email == message['email']).first()
+    if session.get('logged_in'):
+        emit('my_response', {'data': 'You are already logged in'})
+    elif account and checkpw(message['password'].encode('utf-8'),
+                           account.password.encode('utf-8')):
+        session['logged_in'] = True
+        emit('my_response', {'data': 'Logged in successfully'})
+    else:
+        emit('my_response', {'data': 'Invalid login'})
+
+@socketio.on('logout', namespace='/test')
+def logout():
+    if session.get('logged_in'):
+        session['logged_in'] = False
+        emit('my_response', {'data': 'Logged out successfully'})
+    else:
+        emit('my_response', {'data': 'You are not logged in'})
 
 
 if __name__ == '__main__':
