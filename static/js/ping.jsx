@@ -40,5 +40,5 @@ class Ping extends React.Component {
 
 ReactDOM.render(
   <Ping />,
-  document.getElementById('ping-pong')
+  document.getElementById('ping')
 );

@@ -15,10 +15,12 @@
     let socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
   </script>
 
-  <div id="ping-pong"></div>
+  <div id="ping"></div>
   <div id="login"></div>
-  <script src="../static/js/login.jsx" type="text/babel"></script>
+  <div id="join-game"></div>
   <script src="../static/js/ping.jsx" type="text/babel"></script>
+  <script src="../static/js/login.jsx" type="text/babel"></script>
+  <script src="../static/js/joinGame.jsx" type="text/babel"></script>
   <script type="text/javascript">
     $(document).ready(() => {
 

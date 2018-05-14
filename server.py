@@ -38,7 +38,6 @@ def ping_pong():
 
 @socketio.on('login', namespace='/test')
 def login(message):
-    # print(message)
     account = Account.query.filter(Account.email == message['email']).first()
     if session.get('logged_in'):
         emit('my_response', {'data': 'You are already logged in'})
@@ -46,6 +45,7 @@ def login(message):
                            account.password.encode('utf-8')):
         session['logged_in'] = True
         emit('my_response', {'data': 'Logged in successfully'})
+        emit('logged_in', {'data': account.email})
     else:
         emit('my_response', {'data': 'Invalid login'})
 
@@ -54,8 +54,27 @@ def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
         emit('my_response', {'data': 'Logged out successfully'})
+        emit('logged_out')
     else:
         emit('my_response', {'data': 'You are not logged in'})
+
+@socketio.on('join_game', namespace='/test')
+def join_game(message):
+    game = Game.query.filter(Game.room_id == message['room_id'].upper(),
+                             Game.finished_at == None).first()
+    if game and len(game.players) < 8:
+        player = Player(game=game, name=message['player_name'])
+        session['active_player'] = player.player_id
+        emit('my_response', {'data':
+             'Successfully joined game: {}'.format(message['room_id'].upper())
+             })
+    elif game and len(game.players) == 8:
+        emit('my_response', {'data':
+             'Game {} is full'.format(message['room_id'].upper())
+             })
+    else:
+        emit('my_response', {'data':
+             'Game {} does not exist'.format(message['room_id'].upper())})
 
 
 if __name__ == '__main__':

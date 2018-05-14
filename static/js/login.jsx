@@ -5,7 +5,8 @@ class Login extends React.Component {
       formData: {
         userEmail: '',
         userPassword: ''
-      }
+      },
+      loggedIn: false
     };
     this.handleUserInput = this.handleUserInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -18,20 +19,35 @@ class Login extends React.Component {
   }
 
   handleSubmit(e) {
-    socket.emit('login', {
-      email: this.state.formData['userEmail'],
-      password: this.state.formData['userPassword']
+    if (!this.state.loggedIn) {
+      socket.emit('login', {
+        email: this.state.formData['userEmail'],
+        password: this.state.formData['userPassword']
+      });
+    } else {
+      socket.emit('logout');
+    }
+    this.setState({
+      loggedIn: !this.state.loggedIn
     });
   }
 
   render() {
-    return (
-      <div>
-        <input type="text" onChange={this.handleUserInput} name="userEmail" default="Email" />
-        <input type="password" onChange={this.handleUserInput} name="userPassword" default="Password" />
-        <button onClick={this.handleSubmit}>Login</button>
-      </div>
-    );
+    if (!this.state.loggedIn) {
+      return (
+        <div>
+          <input type="text" onChange={this.handleUserInput} name="userEmail" />
+          <input type="password" onChange={this.handleUserInput} name="userPassword" />
+          <button onClick={this.handleSubmit}>Login</button>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <button onClick={this.handleSubmit}>Logout</button>
+        </div>
+      );
+    }
   }
 }
 
