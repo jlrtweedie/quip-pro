@@ -1,6 +1,3 @@
-let socket = io.connect(location.protocol + '//' + document.domain +
-                        ':' + location.port + '/test');
-
 class Ping extends React.Component {
 	constructor(props) {
   	super(props);
@@ -43,5 +40,5 @@ class Ping extends React.Component {
 
 ReactDOM.render(
   <Ping />,
-  $('#ping-pong')[0]
+  document.getElementById('ping-pong')
 );

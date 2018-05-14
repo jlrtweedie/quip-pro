@@ -24,9 +24,13 @@ def background_thread():
         socketio.sleep(10)
         count += 1
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@socketio.on('test_message', namespace='/test')
+def test_message():
+    emit('my_response', {'data': 'Test'})
 
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():

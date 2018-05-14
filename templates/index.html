@@ -10,31 +10,35 @@
 </head>
 <body>
 
+  <script type="text/javascript">
+    namespace = '/test';
+    let socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+  </script>
+
   <div id="ping-pong"></div>
-  <script src="../static/js/ping.js" type="text/babel"></script>
+  <div id="login"></div>
+  <script src="../static/js/login.jsx" type="text/babel"></script>
+  <script src="../static/js/ping.jsx" type="text/babel"></script>
   <script type="text/javascript">
     $(document).ready(() => {
-      namespace = '/test';
-
-      let socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
 
       socket.on('my_response', (msg) => {
         $('#log').append('<br>' + $('<div/>').text(msg.data).html());
       });
 
-      $('form#login').submit((event) => {
-				socket.emit('login', {email: $('#email').val(),
-                              password: $('#password').val()});
-				return false;
-			});
-
-      $('form#logout').submit((event) => {
-        socket.emit('logout');
-        return false;
-      });
+      // $('form#login').submit((event) => {
+			// 	socket.emit('login', {email: $('#email').val(),
+      //                         password: $('#password').val()});
+			// 	return false;
+			// });
+      //
+      // $('form#logout').submit((event) => {
+      //   socket.emit('logout');
+      //   return false;
+      // });
     });
   </script>
-  <h2>Send:</h2>
+  <!-- <h2>Send:</h2>
   <form id="login" method="POST" action="#">
     Email: <input type="text" name="email" id="email"><br>
     Password: <input type="password" name="password" id="password"><br>
@@ -42,7 +46,7 @@
   </form>
   <form id="logout" method="POST" action="#">
     <input type="submit" value="Logout">
-  </form>
+  </form> -->
   <h2>Receive:</h2>
   <div id="log"></div>
 

@@ -2,5 +2,7 @@ env/
 test/
 flask_session/
 
+static/js/root.jsx
+
 secrets.sh
 *.pyc
