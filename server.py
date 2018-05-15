@@ -1,4 +1,7 @@
 import os
+import json
+import string
+import random
 from threading import Lock
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
@@ -6,6 +9,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
 from flask_login import LoginManager
 from model import Account, Game, Player, connect_to_db, commit_to_db
 from bcrypt import checkpw, hashpw, gensalt
+from datetime import datetime
 
 
 async_mode = None
@@ -16,6 +20,14 @@ thread = None
 thread_lock = Lock()
 login_manager = LoginManager()
 connect_to_db(app)
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
 
 
 def background_thread():
@@ -76,7 +88,6 @@ def create_account(message):
             emit('my_response', {'data': 'Account created successfully'})
             emit('logged_in', {'data': account.email})
 
-
 @socketio.on('join_game', namespace='/test')
 def join_game(message):
     game = Game.query.filter(Game.room_id == message['room_id'].upper(),
@@ -96,6 +107,38 @@ def join_game(message):
         emit('my_response', {'data':
              'Game {} does not exist'.format(message['room_id'].upper())})
 
+@socketio.on('load_game', namespace='/test')
+def load_game(message):
+    account = Account.query.filter(Account.email == message).first()
+    game = Game.query.filter(Game.account == account,
+                             Game.finished_at == None).first()
+    if game:
+        emit('display_game', {'room_id': game.room_id,
+                              'started_at': json.dumps(game.started_at,
+                                                       cls=DateTimeEncoder)})
+
+@socketio.on('create_game', namespace='/test')
+def create_game(message):
+    account = Account.query.filter(Account.email == message).first()
+    game = Game.query.filter(Game.account == account,
+                             Game.finished_at == None).first()
+    if not game:
+        game = Game(account=account,
+                    room_id=generate_room_id(),
+                    started_at=datetime.now())
+        commit_to_db(game)
+        load_game(message)
+    else:
+        emit('my_response', {'data':
+             'Active game {} already exists'.format(game.room_id)})
+
+def generate_room_id():
+    """Generates a random 4 character string for a unique room ID."""
+    while True:
+        room_id = ''.join(random.choice(string.ascii_uppercase) for k in range(4))
+        if not Game.query.filter(Game.room_id == room_id,
+                                 Game.finished_at == None).first():
+            return room_id
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

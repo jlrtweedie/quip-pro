@@ -42,6 +42,7 @@ class Login extends React.Component {
     } else {
       return (
         <div>
+          Logged in as: {this.state.formData['email']} &nbsp;
           <button onClick={this.handleSubmit} name="logout">Logout</button>
         </div>
       );
