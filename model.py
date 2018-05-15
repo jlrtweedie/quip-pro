@@ -1,3 +1,4 @@
+import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
@@ -73,10 +74,13 @@ def connect_to_db(app, db_uri='postgresql:///quippro'):
 	app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 	db.app = app
 	db.init_app(app)
+	print('Connected to DB.')
 
 
 def example_data():
 	"""Seeds test data."""
+
+	db.create_all()
 
 	password = hashpw('password'.encode('utf-8'), gensalt())
 
@@ -94,9 +98,18 @@ def example_data():
 
 	db.session.add_all([account, game, p1, p2, p3, p4, p5, p6, p7, p8])
 	db.session.commit()
+	print('Test data seeded.')
+
+
+def commit_to_db(item):
+	"""Commits newly created objects to database."""
+
+	db.session.add(item)
+	db.session.commit()
 
 
 if __name__ == '__main__':
 
 	connect_to_db(app)
-	print('Connected to DB.')
+	if sys.argv[-1] == 'rebuild':
+		example_data()
