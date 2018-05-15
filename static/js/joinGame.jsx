@@ -5,7 +5,8 @@ class JoinGame extends React.Component {
       formData: {
         playerName: '',
         roomId: ''
-      }
+      },
+      joinedGame: false
     };
     this.handleUserInput = this.handleUserInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -18,20 +19,32 @@ class JoinGame extends React.Component {
   }
 
   handleSubmit(e) {
-    socket.emit('join_game', {
+    socket.emit(e.target.name, {
       player_name: this.state.formData['playerName'],
       room_id: this.state.formData['roomId']
     });
   }
 
   render() {
-    return (
-      <div>
-        <input type="text" onChange={this.handleUserInput} name="playerName" />
-        <input type="text" onChange={this.handleUserInput} name="roomId" />
-        <button onClick={this.handleSubmit}>Join Game</button>
-      </div>
-    );
+    socket.on('joined_game', (msg) => {
+      this.setState({joinedGame: msg.data});
+    });
+
+    if (!this.state.joinedGame) {
+      return (
+        <div>
+          <input type="text" onChange={this.handleUserInput} name="playerName" />
+          <input type="text" onChange={this.handleUserInput} name="roomId" />
+          <button onClick={this.handleSubmit} name="join_game">Join Game</button>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <button onClick={this.handleSubmit} name="leave_game">Leave Game  {this.state.formData['roomId'].toUpperCase()}</button>
+        </div>
+      );
+    }
   }
 }
 

@@ -1,4 +1,6 @@
 import sys
+import string
+import random
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
@@ -35,7 +37,7 @@ class Game(db.Model):
 	game_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	account_id = db.Column(db.Integer, db.ForeignKey('accounts.account_id'))
 	room_id = db.Column(db.String(4))
-	started_at = db.Column(db.DateTime)
+	started_at = db.Column(db.DateTime, default=datetime.now())
 	finished_at = db.Column(db.DateTime, nullable=True)
 	num_players = db.Column(db.Integer, nullable=True)
 
@@ -58,6 +60,7 @@ class Player(db.Model):
 	player_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	game_id = db.Column(db.Integer, db.ForeignKey('games.game_id'))
 	name = db.Column(db.String(12))
+	score = db.Column(db.Integer, default=0)
 
 	game = db.relationship('Game', backref=db.backref('players'))
 
@@ -85,7 +88,7 @@ def example_data():
 	password = hashpw('password'.encode('utf-8'), gensalt())
 
 	account = Account(email='test@test.com', password=password.decode('utf-8'))
-	game = Game(account=account, room_id='ABCD', started_at=datetime.now())
+	game = Game(account=account, room_id='ABCD')
 
 	p1 = Player(game=game, name='Player 1')
 	p2 = Player(game=game, name='Player 2')
@@ -101,11 +104,24 @@ def example_data():
 	print('Test data seeded.')
 
 
-def commit_to_db(item):
-	"""Commits newly created objects to database."""
+def commit_to_db(item=None, delete=False):
+	"""Commits objects to database."""
 
-	db.session.add(item)
+	if item and not delete:
+		db.session.add(item)
+	elif item and delete:
+		db.session.delete(item)
 	db.session.commit()
+
+
+def generate_room_id():
+	"""Generates a random 4 character string for a unique room ID."""
+	while True:
+		room_id = ''.join(random.choice(string.ascii_uppercase)
+						  for k in range(4))
+		if not Game.query.filter(Game.room_id == room_id,
+								 Game.finished_at == None).first():
+			return room_id
 
 
 if __name__ == '__main__':

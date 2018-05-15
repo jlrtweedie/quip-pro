@@ -8,6 +8,13 @@ class DisplayGames extends React.Component {
         started_at: ''
       }
     };
+    this.endGame = this.endGame.bind(this);
+  }
+
+  endGame() {
+    socket.emit('end_game', {email: this.state.email,
+                             room_id: this.state.game['room_id']}
+    );
   }
 
   render() {
@@ -29,7 +36,12 @@ class DisplayGames extends React.Component {
     });
 
     if (this.state.game['room_id']) {
-      return <p>Active game {this.state.game['room_id']} started at {this.state.game['started_at']}</p>
+      return (
+        <div>
+          Active game {this.state.game['room_id']} started at {this.state.game['started_at']} &nbsp;
+          <button onClick={this.endGame}>End Game {this.state.game['room_id']}</button>
+        </div>
+      );
     } else {
       return null
     }

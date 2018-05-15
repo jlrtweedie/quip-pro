@@ -8,7 +8,6 @@ class CreateGame extends React.Component {
   }
 
   handleSubmit(e) {
-    console.log(this.state.email);
     socket.emit('create_game', this.state.email);
   }
 
