@@ -14,7 +14,8 @@ from datetime import datetime
 
 
 async_mode = None
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../static/dist",
+                      template_folder="../static")
 app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
