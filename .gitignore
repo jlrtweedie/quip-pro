@@ -1,6 +1,7 @@
 env/
 test/
 flask_session/
+node_modules/
 
 static/js/root.jsx
 
