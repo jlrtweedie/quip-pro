@@ -1,3 +1,9 @@
+import React from 'react';
+import Socket from './socket.js';
+
+let sio = Socket.getValue();
+
+
 class CreateGame extends React.Component {
   constructor(props) {
     super(props);
@@ -8,14 +14,14 @@ class CreateGame extends React.Component {
   }
 
   handleSubmit(e) {
-    socket.emit('create_game', this.state.email);
+    sio.emit('create_game', this.state.email);
   }
 
   render() {
-    socket.on('logged_in', (msg) => {
+    sio.on('logged_in', (msg) => {
       this.setState({ email: msg.data });
     });
-    socket.on('logged_out', () => {
+    sio.on('logged_out', () => {
       this.setState({ email: '' });
     });
 
@@ -31,7 +37,10 @@ class CreateGame extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <CreateGame />,
-  document.getElementById('create-game')
-);
+
+export default CreateGame;
+
+// ReactDOM.render(
+//   <CreateGame />,
+//   document.getElementById('create-game')
+// );

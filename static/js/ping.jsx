@@ -1,3 +1,9 @@
+import React from 'react';
+import Socket from './socket.js';
+
+let sio = Socket.getValue();
+
+
 class Ping extends React.Component {
 	constructor(props) {
   	super(props);
@@ -12,14 +18,14 @@ class Ping extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-  	socket.on('my_pong', () => this.pong());
+  	sio.on('my_pong', () => this.pong());
   }
 
   ping() {
   	this.setState({
   		start_time: (new Date).getTime()
   	});
-  	socket.emit('my_ping');
+  	sio.emit('my_ping');
   }
 
   pong() {
@@ -38,7 +44,10 @@ class Ping extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <Ping />,
-  document.getElementById('ping')
-);
+
+export default Ping;
+
+// ReactDOM.render(
+//   <Ping />,
+//   document.getElementById('ping')
+// );

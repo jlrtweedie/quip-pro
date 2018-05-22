@@ -1,3 +1,9 @@
+import React from 'react';
+import Socket from './socket.js';
+
+let sio = Socket.getValue();
+
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -19,14 +25,14 @@ class Login extends React.Component {
   }
 
   handleSubmit(e) {
-    socket.emit(e.target.name, this.state.formData);
+    sio.emit(e.target.name, this.state.formData);
   }
 
   render() {
-    socket.on('logged_in', () => {
+    sio.on('logged_in', () => {
       this.setState({loggedIn: true});
     });
-    socket.on('logged_out', () => {
+    sio.on('logged_out', () => {
       this.setState({loggedIn: false});
     });
 
@@ -50,7 +56,10 @@ class Login extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <Login />,
-  document.getElementById('login')
-);
+
+export default Login;
+
+// ReactDOM.render(
+//   <Login />,
+//   document.getElementById('login')
+// );

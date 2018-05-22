@@ -1,4 +1,10 @@
-class DisplayGames extends React.Component {
+import React from 'react';
+import Socket from './socket.js';
+
+let sio = Socket.getValue();
+
+
+class DisplayGame extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,23 +18,23 @@ class DisplayGames extends React.Component {
   }
 
   endGame() {
-    socket.emit('end_game', {email: this.state.email,
+    sio.emit('end_game', {email: this.state.email,
                              room_id: this.state.game['room_id']}
     );
   }
 
   render() {
-    socket.on('logged_in', (msg) => {
+    sio.on('logged_in', (msg) => {
       this.setState({ email: msg.data });
-      socket.emit('load_game', this.state.email);
+      sio.emit('load_game', this.state.email);
     });
-    socket.on('display_game', (msg) => {
+    sio.on('display_game', (msg) => {
       let game = Object.assign({}, this.state.game);
       game['room_id'] = msg.room_id;
       game['started_at'] = msg.started_at;
       this.setState({game});
     });
-    socket.on('logged_out', () => {
+    sio.on('logged_out', () => {
       let game = Object.assign({}, this.state.game);
       game['room_id'] = '';
       game['started_at'] = '';
@@ -48,7 +54,10 @@ class DisplayGames extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <DisplayGames />,
-  document.getElementById('display-game')
-);
+
+export default DisplayGame;
+
+// ReactDOM.render(
+//   <DisplayGames />,
+//   document.getElementById('display-game')
+// );

@@ -1,3 +1,9 @@
+import React from 'react';
+import Socket from './socket.js';
+
+let sio = Socket.getValue();
+
+
 class JoinGame extends React.Component {
   constructor(props) {
     super(props);
@@ -19,14 +25,14 @@ class JoinGame extends React.Component {
   }
 
   handleSubmit(e) {
-    socket.emit(e.target.name, {
+    sio.emit(e.target.name, {
       player_name: this.state.formData['playerName'],
       room_id: this.state.formData['roomId']
     });
   }
 
   render() {
-    socket.on('joined_game', (msg) => {
+    sio.on('joined_game', (msg) => {
       this.setState({joinedGame: msg.data});
     });
 
@@ -48,7 +54,10 @@ class JoinGame extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <JoinGame />,
-  document.getElementById('join-game')
-);
+
+export default JoinGame;
+
+// ReactDOM.render(
+//   <JoinGame />,
+//   document.getElementById('join-game')
+// );
