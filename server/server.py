@@ -112,7 +112,7 @@ def join_game(message):
                  'Successfully joined game: {}'
                  .format(message['room_id'].upper())
                  })
-            emit('joined_game', {'data': True})
+            emit('joined_game', {'data': True, 'game_id': game.game_id})
         elif player:
             emit('my_response', {'data':
                  'The name {} is already taken'.format(message['player_name'])
@@ -151,6 +151,13 @@ def load_game(message):
                               'started_at': json.dumps(game.started_at,
                                                        cls=DateTimeEncoder)
             })
+
+@sio.on('load_players', namespace='/test')
+def load_players(message):
+    game = Game.query.filter(Game.game_id == message['game_id']).one()
+    emit('display_players', {'player_names':
+        [player.name for player in game.players]
+        })
 
 @sio.on('create_game', namespace='/test')
 def create_game(message):

@@ -6,6 +6,7 @@ import Log from './log.jsx';
 import JoinGame from './joinGame.jsx';
 import CreateGame from './createGame.jsx';
 import DisplayGame from './displayGame.jsx';
+import DisplayPlayers from './displayPlayers.jsx';
 
 export default class App extends React.Component {
 	render() {
@@ -16,6 +17,7 @@ export default class App extends React.Component {
 				<JoinGame />
 				<CreateGame />
 				<DisplayGame />
+				<DisplayPlayers />
 				{/*<Log />*/}
 			</div>
 		);

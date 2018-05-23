@@ -17,7 +17,7 @@ class DisplayGame extends React.Component {
 
   endGame() {
     sio.emit('end_game', {email: this.state.email,
-                             room_id: this.state.game['room_id']}
+                          room_id: this.state.game['room_id']}
     );
   }
 
