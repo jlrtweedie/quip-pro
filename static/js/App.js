@@ -16,7 +16,7 @@ export default class App extends React.Component {
 				<JoinGame />
 				<CreateGame />
 				<DisplayGame />
-				<Log />
+				{/*<Log />*/}
 			</div>
 		);
 	}

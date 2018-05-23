@@ -7,8 +7,8 @@ class JoinGame extends React.Component {
     super(props);
     this.state = {
       formData: {
-        playerName: '',
-        roomId: ''
+        room_id: '',
+        player_name: ''
       },
       joinedGame: false
     };
@@ -23,10 +23,7 @@ class JoinGame extends React.Component {
   }
 
   handleSubmit(e) {
-    sio.emit(e.target.name, {
-      player_name: this.state.formData['playerName'],
-      room_id: this.state.formData['roomId']
-    });
+    sio.emit(e.target.name, this.state.formData);
   }
 
   render() {
@@ -37,15 +34,15 @@ class JoinGame extends React.Component {
     if (!this.state.joinedGame) {
       return (
         <div>
-          <input type="text" onChange={this.handleUserInput} name="playerName" />
-          <input type="text" onChange={this.handleUserInput} name="roomId" />
+          <input type="text" onChange={this.handleUserInput} name="player_name" />
+          <input type="text" onChange={this.handleUserInput} name="room_id" />
           <button onClick={this.handleSubmit} name="join_game">Join Game</button>
         </div>
       );
     } else {
       return (
         <div>
-          <button onClick={this.handleSubmit} name="leave_game">Leave Game  {this.state.formData['roomId'].toUpperCase()}</button>
+          <button onClick={this.handleSubmit} name="leave_game">Leave Game  {this.state.formData['room_id'].toUpperCase()}</button>
         </div>
       );
     }
