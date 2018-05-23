@@ -17,7 +17,7 @@ async_mode = None
 app = Flask(__name__, static_folder="../static/dist",
                       template_folder="../static")
 app.config['SECRET_KEY'] = 'secret'
-socketio = SocketIO(app, async_mode=async_mode)
+sio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 login_manager = LoginManager()
@@ -35,23 +35,27 @@ class DateTimeEncoder(json.JSONEncoder):
 def background_thread():
     count = 0
     while True:
-        socketio.sleep(10)
+        sio.sleep(10)
         count += 1
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+    return render_template('index.html', async_mode=sio.async_mode)
 
-@socketio.on('test_message', namespace='/test')
+@sio.on('my_response', namespace='/test')
+def test_log(message):
+    print(message['data'])
+
+@sio.on('test_message', namespace='/test')
 def test_message():
     emit('my_response', {'data': 'Test'})
 
-@socketio.on('my_ping', namespace='/test')
+@sio.on('my_ping', namespace='/test')
 def ping_pong():
     emit('my_pong')
 
 
-@socketio.on('login', namespace='/test')
+@sio.on('login', namespace='/test')
 def login(message):
     account = Account.query.filter(Account.email == message['email']).first()
     if account and checkpw(message['password'].encode('utf-8'),
@@ -62,14 +66,14 @@ def login(message):
     else:
         emit('my_response', {'data': 'Invalid login'})
 
-@socketio.on('logout', namespace='/test')
+@sio.on('logout', namespace='/test')
 def logout(message):
     if session.get('logged_in'):
         session['logged_in'] = False
         emit('my_response', {'data': 'Logged out successfully'})
         emit('logged_out')
 
-@socketio.on('register', namespace='/test')
+@sio.on('register', namespace='/test')
 def create_account(message):
     account = Account.query.filter(Account.email == message['email']).first()
     if account:
@@ -92,7 +96,7 @@ def create_account(message):
             emit('logged_in', {'data': account.email})
 
 
-@socketio.on('join_game', namespace='/test')
+@sio.on('join_game', namespace='/test')
 def join_game(message):
     game = Game.query.filter(Game.room_id == message['room_id'].upper(),
                              Game.finished_at == None).first()
@@ -122,7 +126,7 @@ def join_game(message):
              'Game {} does not exist'.format(message['room_id'].upper())
              })
 
-@socketio.on('leave_game', namespace='/test')
+@sio.on('leave_game', namespace='/test')
 def leave_game(message):
     game = Game.query.filter(Game.room_id == message['room_id'].upper(),
                              Game.finished_at == None).first()
@@ -137,7 +141,7 @@ def leave_game(message):
     emit('joined_game', {'data': False})
 
 
-@socketio.on('load_game', namespace='/test')
+@sio.on('load_game', namespace='/test')
 def load_game(message):
     account = Account.query.filter(Account.email == message).first()
     game = Game.query.filter(Game.account == account,
@@ -148,7 +152,7 @@ def load_game(message):
                                                        cls=DateTimeEncoder)
             })
 
-@socketio.on('create_game', namespace='/test')
+@sio.on('create_game', namespace='/test')
 def create_game(message):
     account = Account.query.filter(Account.email == message).first()
     game = Game.query.filter(Game.account == account,
@@ -162,7 +166,7 @@ def create_game(message):
              'Active game {} already exists'.format(game.room_id)
              })
 
-@socketio.on('end_game', namespace='/test')
+@sio.on('end_game', namespace='/test')
 def end_game(message):
     game = Game.query.filter(Game.room_id == message['room_id'],
                              Game.finished_at == None).first()
@@ -177,4 +181,4 @@ def end_game(message):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    sio.run(app, host='0.0.0.0', port=5000, debug=True)

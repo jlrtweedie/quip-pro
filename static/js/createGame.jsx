@@ -1,7 +1,5 @@
 import React from 'react';
-import Socket from './socket.js';
-
-let sio = Socket.getValue();
+import { sio } from './socket.js';
 
 
 class CreateGame extends React.Component {
@@ -39,8 +37,3 @@ class CreateGame extends React.Component {
 
 
 export default CreateGame;
-
-// ReactDOM.render(
-//   <CreateGame />,
-//   document.getElementById('create-game')
-// );

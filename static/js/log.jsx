@@ -1,7 +1,5 @@
 import React from 'react';
-import Socket from './socket.js';
-
-let sio = Socket.getValue();
+import { sio } from './socket.js';
 
 
 class Log extends React.Component {
@@ -10,24 +8,39 @@ class Log extends React.Component {
 		this.state = { logged_messages: [] };
 	}
 
-	componentWillUpdate(nextProps, nextState) {
-		console.log('test');
-		sio.on('my_response', (msg) => this.logMessage());
-	}
+	// componentWillUpdate(nextProps, nextState) {
+	// 	sio.on('my_response', () => {
+	// 		console.log('test');
+	// 	});
+	// }
 
 	logMessage(msg) {
-		let logged_messages = this.state.logged_messages;
-		logged_messages.push(msg);
-		this.setState({logged_messages});
+		let messages = this.state.logged_messages;
+		console.log(messages);
+		messages.push(msg.data);
+		this.setState({logged_messages: messages});
 	}
 
 	render() {
-		let messages = this.state.logged_messages.slice(-10).reverse();
-		let displayMessages = messages.map((msg) => {
-			return <li>{msg}</li>;
-		})
+		sio.on('my_response', (msg) => this.logMessage(msg));
+			// let current_log = this.state.logged_messages;
+			// current_log.push(msg.data);
+			// this.setState({ logged_messages: current_log });
+			// console.log(this.state.logged_messages);
+		
 
-		return <ul>{ displayMessages }</ul>
+		let messages = this.state.logged_messages;
+		let messageList = messages.map((message, i) => {
+			return <li key={i}>{ message }</li>;
+		});
+
+		return (
+			<div>
+				Log:
+				<br />
+				<ul>{ messageList }</ul>
+			</div>
+		)
 	}
 }
 

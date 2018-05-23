@@ -1,7 +1,5 @@
 import React from 'react';
-import Socket from './socket.js';
-
-let sio = Socket.getValue();
+import { sio } from './socket.js';
 
 
 class JoinGame extends React.Component {
@@ -56,8 +54,3 @@ class JoinGame extends React.Component {
 
 
 export default JoinGame;
-
-// ReactDOM.render(
-//   <JoinGame />,
-//   document.getElementById('join-game')
-// );

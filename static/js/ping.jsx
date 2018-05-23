@@ -1,7 +1,5 @@
 import React from 'react';
-import Socket from './socket.js';
-
-let sio = Socket.getValue();
+import { sio } from './socket.js';
 
 
 class Ping extends React.Component {
@@ -46,8 +44,3 @@ class Ping extends React.Component {
 
 
 export default Ping;
-
-// ReactDOM.render(
-//   <Ping />,
-//   document.getElementById('ping')
-// );

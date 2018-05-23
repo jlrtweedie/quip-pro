@@ -1,11 +1,13 @@
-import io from 'socket.io-client'
+import io from 'socket.io-client';
 
 
-class Socket {
-	static getValue() {
-		return io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/test');
-	}
-}
+// class Socket {
+// 	static getValue() {
+// 		return io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/test');
+// 	}
+// }
 
 
-export default Socket;
+// export default Socket;
+
+export const sio = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/test');
