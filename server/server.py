@@ -186,6 +186,25 @@ def end_game(message):
          'Ended game {}'.format(game.room_id)
          })
 
+@sio.on('server/action', namespace='/test')
+def load_data(action):
+    if action['element'] == 'account':
+        account = Account.query.filter(Account.account_id == action['key']).one()
+        emit('action', {'type': 'account', 'data': {
+            'account_id': account.account_id, 'email': account.email
+            }})
+    elif action['element'] == 'game':
+        game = Game.query.filter(Game.game_id == action['key']).one()
+        emit('action', {'type': 'game', 'data': {
+            'game_id': game.game_id, 'room_id': game.room_id
+            }})
+    elif action['element'] == 'player':
+        player = Player.query.filter(Player.player_id == action['key']).one()
+        emit('action', {'type': 'player', 'data': {
+            'player_id': player.player_id, 'name': player.name,
+            'score': player.score
+            }})
+
 
 if __name__ == '__main__':
     sio.run(app, host='0.0.0.0', port=5000, debug=True)
