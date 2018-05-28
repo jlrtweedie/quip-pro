@@ -42,7 +42,7 @@ export default class App extends React.Component {
 		return (
 			<Provider store={store}>
 				{/*<Ping />*/}
-				<LoadData />
+				{/* <LoadData /> */}
 				{/*<Login />
 				<JoinGame />
 				<CreateGame />
