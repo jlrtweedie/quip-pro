@@ -37,8 +37,8 @@ class JoinGame extends React.Component {
     if (!this.state.joinedGame) {
       return (
         <div>
-          <input type="text" onChange={this.handleUserInput} name="playerName" />
-          <input type="text" onChange={this.handleUserInput} name="roomId" />
+          Player Name: <input type="text" onChange={this.handleUserInput} name="playerName" />&nbsp;
+          {/* <input type="text" onChange={this.handleUserInput} name="roomId" /> */}
           <button onClick={this.handleSubmit} name="join_game">Join Game</button>
         </div>
       );
