@@ -11,18 +11,20 @@ class CreateGame extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
-    sio.emit('create_game', this.state.email);
-  }
-
-  render() {
+  componentDidMount() {
     sio.on('logged_in', (msg) => {
       this.setState({ email: msg.data });
     });
     sio.on('logged_out', () => {
       this.setState({ email: '' });
     });
+  }
 
+  handleSubmit(e) {
+    sio.emit('create_game', this.state.email);
+  }
+
+  render() {
     if (this.state.email) {
       return (
         <div>

@@ -13,11 +13,7 @@ class DisplayPlayers extends React.Component {
 		};
 	}
 
-	gameData(id) {
-		sio.emit('load_players', {game_id: this.state.game_id})
-	}
-
-	render() {
+	componentDidMount() {
 		sio.on('joined_game', (msg) => {
 			this.setState({joined_game: msg.data});
 			if (msg.data) {
@@ -27,13 +23,19 @@ class DisplayPlayers extends React.Component {
 		});
 		sio.on('display_players', (msg) => {
 			this.setState({player_names: msg.player_names});
-		})
+		});
+	}
 
+	gameData(id) {
+		sio.emit('load_players', {game_id: this.state.game_id})
+	}
+
+	render() {
 		let players = this.state.player_names;
 		let playerList = players.map((player, i) => {
 			return <li key={i}>{ player }</li>;
 		});
-		
+
 		if (this.state.joined_game) {
 			return (
 				<div>

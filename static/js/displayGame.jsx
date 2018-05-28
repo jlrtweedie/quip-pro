@@ -15,13 +15,7 @@ class DisplayGame extends React.Component {
     this.endGame = this.endGame.bind(this);
   }
 
-  endGame() {
-    sio.emit('end_game', {email: this.state.email,
-                          room_id: this.state.game['room_id']}
-    );
-  }
-
-  render() {
+  componentDidMount() {
     sio.on('logged_in', (msg) => {
       this.setState({ email: msg.data });
       sio.emit('load_game', this.state.email);
@@ -38,7 +32,15 @@ class DisplayGame extends React.Component {
       game['started_at'] = '';
       this.setState({ email: '', game });
     });
+  }
 
+  endGame() {
+    sio.emit('end_game', {email: this.state.email,
+                          room_id: this.state.game['room_id']}
+    );
+  }
+
+  render() {
     if (this.state.game['room_id']) {
       return (
         <div>
