@@ -30,9 +30,11 @@ def index():
 
 @sio.on('action')
 def test_message(action):
+
     if action['type'] == 'server/hello':
         print('Got hello data!', action['data'])
         emit('action', {'type': 'message', 'data': 'Good day!'})
+
     elif action['type'] == 'server/query':
         if action['data'] == 'account':
             object = Account.query.filter(Account.account_id == 1).one()
@@ -42,16 +44,19 @@ def test_message(action):
             object = Player.query.filter(Player.player_id == 1).one()
         data = object.serialize()
         emit('action', {'type': 'response', 'data': data})
+
     elif action['type'] == 'server/login':
         account = Account.query.filter(Account.email ==
                                        action['data']['email']).first()
         if account and checkpw(action['data']['password'].encode('utf-8'),
                                account.password.encode('utf-8')):
             data = account.serialize()
-            emit('action', {'type': 'response', 'data': data})
-            emit('action', {'type': 'login', 'data': 'Logged in successfully'})
+            emit('action', {'type': 'account', 'data': data})
+            emit('action', {'type': 'message', 'data': 'Logged in successfully'})
+            emit('action', {'type': 'login', 'data': True})
         else:
-            emit('action', {'type': 'login', 'data': 'Invalid login'})
+            emit('action', {'type': 'message', 'data': 'Invalid login'})
+            emit('action', {'type': 'login', 'data': False})
 
 
 

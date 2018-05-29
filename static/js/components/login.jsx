@@ -38,9 +38,7 @@ class Login extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    account: state.account,
-    game: state.game,
-    player: state.player
+    login: state.login
   }
 }
 

@@ -1,8 +1,11 @@
-// const initialState = {
-//   data: ''
-// }
+const initialState = {
+  login: false,
+  account: {},
+  game: {},
+  player: {}
+}
 
-function SocketReducer(state = {}, action) {
+function SocketReducer(state = initialState, action) {
   switch(action.type) {
     case 'message':
       const message = Object.assign({}, {message:action.data});
@@ -12,6 +15,10 @@ function SocketReducer(state = {}, action) {
       const response = Object.assign({}, {response:action.data});
       console.log(response);
       return response;
+    case 'account':
+      const account = Object.assign({}, {account:action.data});
+      console.log(account);
+      return account;
     case 'login':
       const login = Object.assign({}, {login:action.data});
       console.log(login);

@@ -2,11 +2,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import io from 'socket.io-client';
-
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
+
 import createSocketIoMiddleware from 'redux-socket.io';
+import io from 'socket.io-client';
 
 import SocketReducer from './reducers/socketReducer';
 
@@ -25,14 +25,19 @@ let SocketIoMiddleware = createSocketIoMiddleware(socket, 'server/');
 let store = applyMiddleware(SocketIoMiddleware)(createStore)(SocketReducer);
 
 class App extends React.Component {
+	componentDidMount() {
+		this.props.store.subscribe(this.forceUpdate.bind(this));
+	}
+
 
 	render() {
+		const stateProps = this.props.store.getState();
+		const login = stateProps.login;
 		return (
-			<Provider store={store}>
         <div>
 				{/* <Ping /> */}
 				  <LoadData />
-          <Login />
+				  { login === false ? <Login /> : <div></div> }
 				{/* <Login /> */}
 				{/* <JoinGame /> */}
 				{/* <CreateGame /> */}
@@ -40,11 +45,13 @@ class App extends React.Component {
 				{/* <DisplayPlayers /> */}
 				{/*<Log />*/}
         </div>
-			</Provider>
 		);
 	}
 }
+
 ReactDOM.render(
-  <App />,
+	<Provider store={store}>
+  	<App store={store} />
+  </Provider>,
   document.getElementById("content")
 );
