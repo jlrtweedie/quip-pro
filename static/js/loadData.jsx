@@ -1,7 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { sio } from './socket.js';
-
 
 class LoadData extends React.Component {
 	constructor(props) {
@@ -10,7 +8,7 @@ class LoadData extends React.Component {
 	}
 
 	handleSubmit(e) {
-		this.props.dispatch({ type: 'server/action', element: e.target.name, key: 1 })
+		this.props.dispatch({type:'server/query', data: e.target.name})
 	}
 
 	render() {
@@ -32,6 +30,5 @@ function mapStateToProps(state) {
 		player: state.player
 	}
 }
-
 
 export default connect(mapStateToProps)(LoadData);

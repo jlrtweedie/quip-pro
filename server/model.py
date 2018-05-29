@@ -1,7 +1,7 @@
 import sys
 import string
 import random
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from datetime import datetime
@@ -22,6 +22,12 @@ class Account(db.Model):
 
 	def __repr__(self):
 		return '<Account {} [{}]>'.format(self.account_id, self.email)
+
+	def serialize(self):
+		return {
+			'account_id': self.account_id,
+			'email': self.email
+		}
 
 	@validates('email')
 	def validate_email(self, key, accounts):
@@ -51,6 +57,13 @@ class Game(db.Model):
 			return '<Game {} finished at {}>'.format(self.game_id,
 													 self.finished_at)
 
+	def serialize(self):
+		return {
+			'game_id': self.game_id,
+			'account_id': self.account_id,
+			'room_id': self.room_id
+		}
+
 
 class Player(db.Model):
 	"""Defines a player connected to a game."""
@@ -66,7 +79,14 @@ class Player(db.Model):
 
 	def __repr__(self):
 		return '<Player {} connected to game {}>'.format(self.player_id,
-												    	 self.game_id)
+		self.game_id)
+
+	def serialize(self):
+		return {
+		'player_id': self.player_id,
+		'game_id': self.game_id,
+		'name': self.name
+		}
 
 ################################################################################
 

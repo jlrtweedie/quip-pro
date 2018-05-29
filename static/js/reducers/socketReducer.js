@@ -1,21 +1,19 @@
-const initialState = {
-  data: ''
-}
+// const initialState = {
+//   data: ''
+// }
 
-function SocketReducer(state = initialState, action) {
+function SocketReducer(state = {}, action) {
   switch(action.type) {
-    case 'TEST_REQUEST':
-      let request = Object.assign({}, state, {
-        outbound: action.outbound
-      })
-      return request
-    case 'TEST_RESPONSE':
-      let response = Object.assign({}, state, {
-        inbound: action.inbound
-      })
-      return response
+    case 'message':
+      const message = Object.assign({}, {message:action.data});
+      console.log(message);
+      return message;
+    case 'response':
+      const response = Object.assign({}, {response:action.data});
+      console.log(response);
+      return response;
     default:
-      return state
+      return state;
   }
 }
 

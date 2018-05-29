@@ -1,5 +1,6 @@
 env/
 node_modules/
+static/dist/bundle.js
 
 secrets.sh
 *.pyc
