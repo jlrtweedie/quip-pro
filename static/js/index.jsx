@@ -18,6 +18,7 @@ import SocketReducer from './reducers/socketReducer';
 // import DisplayGame from './displayGame.jsx';
 // import DisplayPlayers from './displayPlayers.jsx';
 import LoadData from './components/loadData.jsx';
+import Login from './components/login.jsx';
 
 let socket = io('http://localhost:5000');
 let SocketIoMiddleware = createSocketIoMiddleware(socket, 'server/');
@@ -28,14 +29,17 @@ class App extends React.Component {
 	render() {
 		return (
 			<Provider store={store}>
+        <div>
 				{/* <Ping /> */}
-				<LoadData />
+				  <LoadData />
+          <Login />
 				{/* <Login /> */}
 				{/* <JoinGame /> */}
 				{/* <CreateGame /> */}
 				{/* <DisplayGame /> */}
 				{/* <DisplayPlayers /> */}
 				{/*<Log />*/}
+        </div>
 			</Provider>
 		);
 	}

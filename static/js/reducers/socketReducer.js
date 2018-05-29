@@ -12,6 +12,10 @@ function SocketReducer(state = {}, action) {
       const response = Object.assign({}, {response:action.data});
       console.log(response);
       return response;
+    case 'login':
+      const login = Object.assign({}, {login:action.data});
+      console.log(login);
+      return login;
     default:
       return state;
   }

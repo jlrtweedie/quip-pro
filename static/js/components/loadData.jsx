@@ -8,7 +8,7 @@ class LoadData extends React.Component {
 	}
 
 	handleSubmit(e) {
-		this.props.dispatch({type:'server/query', data: e.target.name})
+		this.props.dispatch({type:'server/query', data: e.target.name});
 	}
 
 	render() {

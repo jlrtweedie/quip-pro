@@ -5,6 +5,8 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from model import Account, Game, Player, connect_to_db, commit_to_db, \
     generate_room_id
+from bcrypt import checkpw
+
 
 async_mode = None
 app = Flask(__name__, static_folder="../static/dist",
@@ -40,6 +42,16 @@ def test_message(action):
             object = Player.query.filter(Player.player_id == 1).one()
         data = object.serialize()
         emit('action', {'type': 'response', 'data': data})
+    elif action['type'] == 'server/login':
+        account = Account.query.filter(Account.email ==
+                                       action['data']['email']).first()
+        if account and checkpw(action['data']['password'].encode('utf-8'),
+                               account.password.encode('utf-8')):
+            data = account.serialize()
+            emit('action', {'type': 'response', 'data': data})
+            emit('action', {'type': 'login', 'data': 'Logged in successfully'})
+        else:
+            emit('action', {'type': 'login', 'data': 'Invalid login'})
 
 
 
