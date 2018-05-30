@@ -24,12 +24,24 @@ def background_thread():
         sio.sleep(10)
         count += 1
 
+
+def logout():
+    return emit('action', {'type': 'login', 'data':
+                {'login': False, 'account': None}
+                })
+
+def leave_game():
+    return emit('action', {'type': 'join_game', 'data':
+                {'join_game': False, 'game': None, 'player': None}
+                })
+
+
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=sio.async_mode)
 
 @sio.on('action')
-def test_message(action):
+def socket_handler(action):
 
     if action['type'] == 'server/hello':
         print('Got hello data!', action['data'])
@@ -54,12 +66,10 @@ def test_message(action):
 
     elif action['type'] == 'server/login':
         if action['data'] is None:
-            emit('action', {'type': 'login', 'data':
-                {'login': False, 'account': None}
-                })
+            logout()
         else:
-            account = Account.query.filter(Account.email ==
-                                           action['data']['email']).first()
+            account = Account.query.filter(
+                Account.email == action['data']['email']).first()
             if account and checkpw(action['data']['password'].encode('utf-8'),
                                    account.password.encode('utf-8')):
                 account = account.serialize()
@@ -67,10 +77,33 @@ def test_message(action):
                     {'login': True, 'account': account}
                     })
             else:
-                emit('action', {'type': 'login', 'data':
-                    {'login': False, 'account': None}
-                    })
+                logout()
+
+    elif action['type'] == 'server/join_game':
+        print(action['data'])
+        if action['data'] is None:
+            leave_game()
+        else:
+            game = Game.query.filter(
+                Game.room_id == action['data']['room_id'].upper(),
+                Game.finished_at == None).first()
+            if game:
+                player = Player.query.filter(
+                    Player.game_id == game.game_id,
+                    Player.name == action['data']['name']).first()
+                if not player:
+                    player =  Player(game=game, name=action['data']['name'])
+                    commit_to_db(player)
+                    game = game.serialize()
+                    player = player.serialize()
+                    emit('action', {'type': 'join_game', 'data':
+                        {'join_game': True, 'game': game, 'player': player}
+                        })
+                else:
+                    leave_game()
+            else:
+                leave_game()
 
 
 if __name__ == '__main__':
-    sio.run(app, host='0.0.0.0', port=5000, debug=True)
+    sio.run(app, host='0.0.0.0', port=5000)

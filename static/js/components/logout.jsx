@@ -7,7 +7,7 @@ class Logout extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit() {
     this.props.dispatch({type:'server/login', data: null});
   }
 

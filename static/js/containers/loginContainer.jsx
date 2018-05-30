@@ -5,12 +5,9 @@ import { connect } from 'react-redux';
 import Login from '../components/login.jsx';
 import Logout from '../components/logout.jsx';
 
-
 class LoginContainer extends React.Component {
-
-
 	render() {
-		const stateProps = this.props.store.getState();
+		const stateProps = this.props.store.getState().login;
 		const login = stateProps.login.login;
 		const account = stateProps.login.account;
 		return (
@@ -26,6 +23,5 @@ function mapStateToProps(state) {
 		login: state.login
 	}
 }
-
 
 export default connect(mapStateToProps)(LoginContainer);

@@ -6,7 +6,7 @@ class Login extends React.Component {
     super(props);
     this.state = {
       data: {
-        email: 'test',
+        email: '',
         password: ''
       }
     };
@@ -28,8 +28,8 @@ class Login extends React.Component {
     return (
       <div>
         <h2>Login</h2>
-        <input type="text" onChange={this.handleUserInput} name="email" />
-        <input type="password" onChange={this.handleUserInput} name="password" />
+        Email: <input type="text" onChange={this.handleUserInput} name="email" />&nbsp;
+        Password: <input type="password" onChange={this.handleUserInput} name="password" />&nbsp;
         <button onClick={this.handleSubmit} name="login">Login</button>
       </div>
     )
