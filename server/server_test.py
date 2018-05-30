@@ -30,29 +30,46 @@ def index():
 
 @sio.on('action')
 def test_message(action):
+
     if action['type'] == 'server/hello':
         print('Got hello data!', action['data'])
         emit('action', {'type': 'message', 'data': 'Good day!'})
-    elif action['type'] == 'server/query':
-        if action['data'] == 'account':
-            object = Account.query.filter(Account.account_id == 1).one()
-        elif action['data'] == 'game':
-            object = Game.query.filter(Game.game_id == 1).one()
-        elif action['data'] == 'player':
-            object = Player.query.filter(Player.player_id == 1).one()
-        data = object.serialize()
-        emit('action', {'type': 'response', 'data': data})
-    elif action['type'] == 'server/login':
-        account = Account.query.filter(Account.email ==
-                                       action['data']['email']).first()
-        if account and checkpw(action['data']['password'].encode('utf-8'),
-                               account.password.encode('utf-8')):
-            data = account.serialize()
-            emit('action', {'type': 'response', 'data': data})
-            emit('action', {'type': 'login', 'data': 'Logged in successfully'})
-        else:
-            emit('action', {'type': 'login', 'data': 'Invalid login'})
 
+    elif action['type'] == 'server/query':
+        account = None
+        game = None
+        player = None
+        if action['data'] == 'account':
+            account = Account.query.filter(Account.account_id == 1).one()
+            account.serialize()
+        elif action['data'] == 'game':
+            game = Game.query.filter(Game.game_id == 1).one()
+            game.serialize()
+        elif action['data'] == 'player':
+            player = Player.query.filter(Player.player_id == 1).one()
+            player.serialize()
+        emit('action', {'type': 'query', 'data':
+            {'account': account, 'game': game, 'player': player}
+            })
+            
+    elif action['type'] == 'server/login':
+        if action['data'] is None:
+            emit('action', {'type': 'login', 'data':
+                {'login': False, 'account': None}
+                })
+        else:
+            account = Account.query.filter(Account.email ==
+                                           action['data']['email']).first()
+            if account and checkpw(action['data']['password'].encode('utf-8'),
+                                   account.password.encode('utf-8')):
+                account.serialize()
+                emit('action', {'type': 'login', 'data':
+                    {'login': True, 'account': account}
+                    })
+            else:
+                emit('action', {'type': 'login', 'data':
+                    {'login': False, 'account': None}
+                    })
 
 
 if __name__ == '__main__':
