@@ -41,17 +41,17 @@ def test_message(action):
         player = None
         if action['data'] == 'account':
             account = Account.query.filter(Account.account_id == 1).one()
-            account.serialize()
+            account = account.serialize()
         elif action['data'] == 'game':
             game = Game.query.filter(Game.game_id == 1).one()
-            game.serialize()
+            account = game.serialize()
         elif action['data'] == 'player':
             player = Player.query.filter(Player.player_id == 1).one()
-            player.serialize()
+            account = player.serialize()
         emit('action', {'type': 'query', 'data':
             {'account': account, 'game': game, 'player': player}
             })
-            
+
     elif action['type'] == 'server/login':
         if action['data'] is None:
             emit('action', {'type': 'login', 'data':
@@ -62,7 +62,7 @@ def test_message(action):
                                            action['data']['email']).first()
             if account and checkpw(action['data']['password'].encode('utf-8'),
                                    account.password.encode('utf-8')):
-                account.serialize()
+                account = account.serialize()
                 emit('action', {'type': 'login', 'data':
                     {'login': True, 'account': account}
                     })
