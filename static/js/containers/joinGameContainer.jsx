@@ -8,9 +8,9 @@ import LeaveGame from '../components/leaveGame.jsx';
 class JoinGameContainer extends React.Component {
   render() {
     const stateProps = this.props.store.getState().join_game;
-    const join_game = stateProps.join_game.join_game;
-    const game = stateProps.join_game.game;
-    const player = stateProps.join_game.player;
+    const join_game = stateProps.join_game;
+    const game = stateProps.game;
+    const player = stateProps.player;
     return (
       <div>
         { join_game === false ? (

@@ -8,8 +8,8 @@ import Logout from '../components/logout.jsx';
 class LoginContainer extends React.Component {
 	render() {
 		const stateProps = this.props.store.getState().login;
-		const login = stateProps.login.login;
-		const account = stateProps.login.account;
+		const login = stateProps.login;
+		const account = stateProps.account;
 		return (
         <div>
 				  { login === false ? <Login /> : <Logout account={account} /> }

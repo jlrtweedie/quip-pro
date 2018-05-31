@@ -17,36 +17,21 @@ const initialState = {
   }
 }
 
-const loginState = {
-  login: {
-    login: false,
-    account: {}
-  }
-}
-
-const joinGameState = {
-  join_game: {
-    join_game: false,
-    game: {},
-    player: {}
-  }
-}
-
-export function LoginReducer(state = initialState, action) {
+export function LoginReducer(state = initialState.login, action) {
   switch(action.type) {
     case 'login':
-      const login = Object.assign({}, {login: action.data});
+      const login = Object.assign({}, action.data);
       return login;
     default:
       return state;
   }
 }
 
-export function JoinGameReducer(state = initialState, action) {
+export function JoinGameReducer(state = initialState.join_game, action) {
   switch (action.type) {
     case 'join_game':
       console.log('Test')
-      const join_game = Object.assign({}, {join_game: action.data});
+      const join_game = Object.assign({}, action.data);
       return join_game;
     default:
       return state;
