@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import createSocketIoMiddleware from 'redux-socket.io';
 import io from 'socket.io-client';
 
-import { LoginReducer, JoinGameReducer } from './reducers/socketReducer';
+import { LoginReducer, JoinGameReducer, PlayerNameReducer } from './reducers/socketReducer';
 // import { rootReducer } from './reducers/socketReducer';
 
 import LoginContainer from './containers/loginContainer.jsx';
@@ -15,7 +15,8 @@ import JoinGameContainer from './containers/joinGameContainer.jsx';
 
 const rootReducer = combineReducers({
 	login: LoginReducer,
-	join_game: JoinGameReducer
+	join_game: JoinGameReducer,
+	player_names: PlayerNameReducer
 })
 
 let socket = io('http://localhost:5000');

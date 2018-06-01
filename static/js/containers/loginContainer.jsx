@@ -12,7 +12,11 @@ class LoginContainer extends React.Component {
 		const account = stateProps.account;
 		return (
         <div>
-				  { login === false ? <Login /> : <Logout account={account} /> }
+				  { login === false ? (
+				  	<Login />
+				  ) : (
+				  	<Logout account={account} />
+				  ) }
         </div>
 		);
 	}

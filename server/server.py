@@ -1,16 +1,11 @@
 import os
-import json
-import string
-import random
 from threading import Lock
-from flask import Flask, render_template, session, request
+from flask import  Flask, render_template, session, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
-from flask_login import LoginManager
 from model import Account, Game, Player, connect_to_db, commit_to_db, \
     generate_room_id
-from bcrypt import checkpw, hashpw, gensalt
-from datetime import datetime
+from bcrypt import checkpw
 
 
 async_mode = None
@@ -20,17 +15,8 @@ app.config['SECRET_KEY'] = 'secret'
 sio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
-login_manager = LoginManager()
+
 connect_to_db(app)
-
-
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-
-        return json.JSONEncoder.default(self, o)
-
 
 def background_thread():
     count = 0
@@ -38,173 +24,99 @@ def background_thread():
         sio.sleep(10)
         count += 1
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
     return render_template('index.html', async_mode=sio.async_mode)
 
-@sio.on('my_response', namespace='/test')
-def test_log(message):
-    print(message['data'])
+@sio.on('action')
+def socket_handler(action):
 
-@sio.on('test_message', namespace='/test')
-def test_message():
-    emit('my_response', {'data': 'Test'})
+    # if action['type'] == 'server/hello':
+    #     print('Got hello data!', action['data'])
+    #     emit('action', {'type': 'message', 'data': 'Good day!'})
 
-@sio.on('my_ping', namespace='/test')
-def ping_pong():
-    emit('my_pong')
+    # elif action['type'] == 'server/query':
+    #     account = None
+    #     game = None
+    #     player = None
+    #     if action['data'] == 'account':
+    #         account = Account.query.filter(Account.account_id == 1).one()
+    #         account = account.serialize()
+    #     elif action['data'] == 'game':
+    #         game = Game.query.filter(Game.game_id == 1).one()
+    #         account = game.serialize()
+    #     elif action['data'] == 'player':
+    #         player = Player.query.filter(Player.player_id == 1).one()
+    #         account = player.serialize()
+    #     emit('action', {'type': 'query', 'data':
+    #         {'account': account, 'game': game, 'player': player}
+    #         })
 
-
-@sio.on('login', namespace='/test')
-def login(message):
-    account = Account.query.filter(Account.email == message['email']).first()
-    if account and checkpw(message['password'].encode('utf-8'),
-                           account.password.encode('utf-8')):
-        session['logged_in'] = True
-        emit('my_response', {'data': 'Logged in successfully'})
-        emit('logged_in', {'data': account.email})
-    else:
-        emit('my_response', {'data': 'Invalid login'})
-
-@sio.on('logout', namespace='/test')
-def logout(message):
-    if session.get('logged_in'):
-        session['logged_in'] = False
-        emit('my_response', {'data': 'Logged out successfully'})
-        emit('logged_out')
-
-@sio.on('register', namespace='/test')
-def create_account(message):
-    account = Account.query.filter(Account.email == message['email']).first()
-    if account:
-        emit('my_response', {'data':
-             '{} is already a registered account'.format(message['email'])
-             })
-    else:
-        password = hashpw(message['password'].encode('utf-8'), gensalt())
-        try:
-            account = Account(email=message['email'],
-                              password=password.decode('utf-8'))
-        except AssertionError:
-            emit('my_response', {'data':
-                 '{} is not a valid email address'.format(message['email'])
-                 })
+    if action['type'] == 'server/login':
+        if action['data'] is None:
+            logout()
         else:
-            commit_to_db(account)
-            session['logged_in'] = True
-            emit('my_response', {'data': 'Account created successfully'})
-            emit('logged_in', {'data': account.email})
+            account = Account.query.filter(
+                Account.email == action['data']['email']).first()
+            if account and checkpw(action['data']['password'].encode('utf-8'),
+                                   account.password.encode('utf-8')):
+                account = account.serialize()
+                emit('action', {'type': 'login', 'data':
+                    {'login': True, 'account': account}
+                    })
+            else:
+                logout()
+
+    elif action['type'] == 'server/join_game':
+        if action['data'] is None:
+            leave_game()
+        else:
+            room_id = action['data']['room_id'].upper()
+            game = Game.query.filter(
+                Game.room_id == room_id,
+                Game.finished_at == None).first()
+            if game:
+                player = Player.query.filter(
+                    Player.game_id == game.game_id,
+                    Player.name == action['data']['name']).first()
+                if not player:
+                    player =  Player(game=game, name=action['data']['name'])
+                    commit_to_db(player)
+                    player_names = [player_name.name for player_name in game.players]
+
+                    game = game.serialize()
+                    player = player.serialize()
+                    join_room(room_id)
+                    emit('action', {'type': 'join_game', 'data':
+                        {'join_game': True, 'game': game, 'player': player}
+                        })
+                    print('Join Game')
+                    emit('action', {'type': 'player_names', 'data':
+                        {'player_names': player_names}
+                        }, room=room_id, broadcast=True)
+                    print('Player Names')
+                else:
+                    leave_game()
+            else:
+                leave_game()
+
+    elif action['type'] == 'server/load_players':
+        game = Game.query.filter(
+            Game.game_id == action['data']['game_id']).one()
+        pass
 
 
-@sio.on('join_game', namespace='/test')
-def join_game(message):
-    game = Game.query.filter(Game.room_id == message['room_id'].upper(),
-                             Game.finished_at == None).first()
-    if game:
-        player = Player.query.filter(Player.game_id == game.game_id,
-                                    Player.name == message['player_name']
-                                    ).first()
-        if not player and len(game.players) < 8:
-            player = Player(game=game, name=message['player_name'])
-            commit_to_db(player)
-            session['active_player'] = player.player_id
-            emit('my_response', {'data':
-                 'Successfully joined game: {}'
-                 .format(message['room_id'].upper())
-                 })
-            emit('joined_game', {'data': True, 'game_id': game.game_id})
-        elif player:
-            emit('my_response', {'data':
-                 'The name {} is already taken'.format(message['player_name'])
-                 })
-        elif len(game.players) == 8:
-            emit('my_response', {'data':
-                 'Game {} is full'.format(message['room_id'].upper())
-                 })
-    else:
-        emit('my_response', {'data':
-             'Game {} does not exist'.format(message['room_id'].upper())
-             })
 
-@sio.on('leave_game', namespace='/test')
-def leave_game(message):
-    game = Game.query.filter(Game.room_id == message['room_id'].upper(),
-                             Game.finished_at == None).first()
-    player = Player.query.filter(Player.game_id == game.game_id,
-                                 Player.name == message['player_name']
-                                 ).first()
-    commit_to_db(player, delete=True)
-    del session['active_player']
-    emit('my_response', {'data':
-         'Successfully left game: {}'.format(message['room_id'].upper())
-         })
-    emit('joined_game', {'data': False})
+def logout():
+    return emit('action', {'type': 'login', 'data':
+    {'login': False, 'account': None}
+    })
 
-
-@sio.on('load_game', namespace='/test')
-def load_game(message):
-    account = Account.query.filter(Account.email == message).first()
-    game = Game.query.filter(Game.account == account,
-                             Game.finished_at == None).first()
-    if game:
-        emit('display_game', {'room_id': game.room_id,
-                              'started_at': json.dumps(game.started_at,
-                                                       cls=DateTimeEncoder)
-            })
-
-@sio.on('load_players', namespace='/test')
-def load_players(message):
-    game = Game.query.filter(Game.game_id == message['game_id']).one()
-    emit('display_players', {'player_names':
-        [player.name for player in game.players]
-        })
-
-@sio.on('create_game', namespace='/test')
-def create_game(message):
-    account = Account.query.filter(Account.email == message).first()
-    game = Game.query.filter(Game.account == account,
-                             Game.finished_at == None).first()
-    if not game:
-        game = Game(account=account, room_id=generate_room_id())
-        commit_to_db(game)
-        load_game(message)
-    else:
-        emit('my_response', {'data':
-             'Active game {} already exists'.format(game.room_id)
-             })
-
-@sio.on('end_game', namespace='/test')
-def end_game(message):
-    game = Game.query.filter(Game.room_id == message['room_id'],
-                             Game.finished_at == None).first()
-
-    game.finished_at = datetime.now()
-    game.num_players = len(game.players)
-    commit_to_db()
-    emit('display_game', {'room_id': '', 'started_at': ''})
-    emit('my_response', {'data':
-         'Ended game {}'.format(game.room_id)
-         })
-
-@sio.on('server/action', namespace='/test')
-def load_data(action):
-    if action['element'] == 'account':
-        account = Account.query.filter(Account.account_id == action['key']).one()
-        emit('action', {'type': 'account', 'data': {
-            'account_id': account.account_id, 'email': account.email
-            }})
-    elif action['element'] == 'game':
-        game = Game.query.filter(Game.game_id == action['key']).one()
-        emit('action', {'type': 'game', 'data': {
-            'game_id': game.game_id, 'room_id': game.room_id
-            }})
-    elif action['element'] == 'player':
-        player = Player.query.filter(Player.player_id == action['key']).one()
-        emit('action', {'type': 'player', 'data': {
-            'player_id': player.player_id, 'name': player.name,
-            'score': player.score
-            }})
+def leave_game():
+    return emit('action', {'type': 'join_game', 'data':
+    {'join_game': False, 'game': None, 'player': None}
+    })
 
 
 if __name__ == '__main__':
-    sio.run(app, host='0.0.0.0', port=5000, debug=True)
+    sio.run(app, host='0.0.0.0', port=5000)
