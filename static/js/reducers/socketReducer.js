@@ -11,6 +11,10 @@ const initialState = {
     game: {},
     player: {}
   },
+  create_game: {
+    account: {},
+    game: {}
+  },
   player_names: {
     player_names: []
   }
@@ -42,6 +46,16 @@ export function JoinGameReducer(state = initialState.join_game, action) {
     case 'join_game':
       const join_game = Object.assign({}, action.data);
       return join_game;
+    default:
+      return state;
+  }
+}
+
+export function CreateGameReducer(state = initialState.create_game, action) {
+  switch (action.type) {
+    case 'create_game':
+      const create_game = Object.assign({}, action.data);
+      return create_game;
     default:
       return state;
   }

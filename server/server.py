@@ -5,7 +5,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from model import Account, Game, Player, connect_to_db, commit_to_db, \
     generate_room_id
-from bcrypt import checkpw
+from bcrypt import checkpw, hashpw, gensalt
 
 
 async_mode = None
@@ -41,11 +41,26 @@ def socket_handler(action):
                                    account.password.encode('utf-8')):
                 login(account)
             else:
-                error_message(action['type'])
+                error_message(action['type'], 'Invalid login')
+
+    elif action['type'] == 'server/register':
+        email = action['data']['email']
+        password = action['data']['password']
+        account = Account.query.filter(
+            Account.email == email).first()
+        if not account:
+            password = hashpw(password.encode('utf-8'), gensalt())
+            try:
+                account = Account(email=email, password=password.decode('utf-8'))
+            except AssertionError:
+                error_message(action['type'], 'Invalid email address')
+            else:
+                commit_to_db(account)
+                login(account)
+
 
     elif action['type'] == 'server/join_game':
         if action['data'] is None:
-            print(action)
             player_id = action['handle']['player_id']
             game_id = action['handle']['game_id']
             player = Player.query.filter(Player.player_id == player_id).one()
@@ -62,20 +77,35 @@ def socket_handler(action):
                 player = Player.query.filter(
                     Player.game_id == game.game_id,
                     Player.name == name).first()
-                if not player:
+                if not player and len(game.players) < 8:
                     player =  Player(game=game, name=name)
                     commit_to_db(player)
                     join_game(game, player)
+                elif player and len(game.players) >= 8:
+                    error_message(action['type'], 'Game is full')
                 else:
-                    error_message(action['type'])
+                    error_message(action['type'], 'Duplicate name')
             else:
-                error_message(action['type'])
+                error_message(action['type'], 'Invalid room')
+
+    elif action['type'] == 'server/create_game':
+        account_id = action['data']
+        account = Account.query.filter(Account.account_id == account_id).one()
+        active_game = Game.query.filter(
+            Game.account == account,
+            Game.finished_at == None).first()
+        if not active_game:
+            game = Game(account=account, room_id=generate_room_id())
+            commit_to_db(game)
+            create_game(account, game)
+        else:
+            error_message(action['type'], 'Game {} is active'.format(active_game.room_id))
 
 
-def error_message(action_type):
+def error_message(action_type, details):
     error = 'Unable to perform action: {}'.format(action_type)
     return emit('action', {'type': 'message', 'data':
-        {'message': error}
+        {'message': error, 'details': details}
         })
 
 def login(account):
@@ -96,6 +126,13 @@ def join_game(game, player):
     player = player.serialize()
     return emit('action', {'type': 'join_game', 'data':
         {'join_game': True, 'game': game, 'player': player}
+        })
+
+def create_game(account, game):
+    account = account.serialize()
+    game = game.serialize()
+    return emit('action', {'type': 'create_game', 'data':
+        {'account': account, 'game': game}
         })
 
 def leave_game(game):

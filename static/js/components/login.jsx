@@ -21,7 +21,7 @@ class Login extends React.Component {
   }
 
   handleSubmit(e) {
-    this.props.dispatch({type:'server/login', data: this.state.data});
+    this.props.dispatch({type:'server/'.concat(e.target.name), data: this.state.data});
   }
 
   render() {
@@ -30,7 +30,8 @@ class Login extends React.Component {
         <h2>Login</h2>
         Email: <input type="text" onChange={this.handleUserInput} name="email" />&nbsp;
         Password: <input type="password" onChange={this.handleUserInput} name="password" />&nbsp;
-        <button onClick={this.handleSubmit} name="login">Login</button>
+        <button onClick={this.handleSubmit} name="login">Login</button>&nbsp;
+        <button onClick={this.handleSubmit} name="register">Register</button>
       </div>
     )
   }

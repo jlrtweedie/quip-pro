@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import Login from '../components/login.jsx';
 import Logout from '../components/logout.jsx';
+import CreateGame from '../components/createGame.jsx';
 
 class LoginContainer extends React.Component {
 	render() {
@@ -15,7 +16,10 @@ class LoginContainer extends React.Component {
 				  { login === false ? (
 				  	<Login />
 				  ) : (
-				  	<Logout account={account} />
+				  	<div>
+				  		<Logout account={account} />
+				  		<CreateGame account={account} />
+				  	</div>
 				  ) }
         </div>
 		);

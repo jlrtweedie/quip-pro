@@ -11,6 +11,7 @@ import {
 	MessageReducer,
 	LoginReducer,
 	JoinGameReducer,
+	CreateGameReducer,
 	PlayerNameReducer
 } from './reducers/socketReducer';
 
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
 	message: MessageReducer,
 	login: LoginReducer,
 	join_game: JoinGameReducer,
+	create_game: CreateGameReducer,
 	player_names: PlayerNameReducer
 })
 
