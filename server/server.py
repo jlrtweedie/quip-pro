@@ -60,62 +60,88 @@ def socket_handler(action):
                 Account.email == action['data']['email']).first()
             if account and checkpw(action['data']['password'].encode('utf-8'),
                                    account.password.encode('utf-8')):
-                account = account.serialize()
-                emit('action', {'type': 'login', 'data':
-                    {'login': True, 'account': account}
-                    })
+                login(account)
             else:
-                logout()
+                error_message(action['type'])
 
     elif action['type'] == 'server/join_game':
         if action['data'] is None:
-            leave_game()
+            print(action)
+            player_id = action['handle']['player_id']
+            game_id = action['handle']['game_id']
+            player = Player.query.filter(Player.player_id == player_id).one()
+            game = Game.query.filter(Game.game_id == game_id).one()
+            commit_to_db(player, delete=True)
+            leave_game(game)
         else:
             room_id = action['data']['room_id'].upper()
+            name = action['data']['name']
             game = Game.query.filter(
                 Game.room_id == room_id,
                 Game.finished_at == None).first()
             if game:
                 player = Player.query.filter(
                     Player.game_id == game.game_id,
-                    Player.name == action['data']['name']).first()
+                    Player.name == name).first()
                 if not player:
-                    player =  Player(game=game, name=action['data']['name'])
+                    player =  Player(game=game, name=name)
                     commit_to_db(player)
-                    player_names = [player_name.name for player_name in game.players]
-
-                    game = game.serialize()
-                    player = player.serialize()
-                    join_room(room_id)
-                    emit('action', {'type': 'join_game', 'data':
-                        {'join_game': True, 'game': game, 'player': player}
-                        })
-                    print('Join Game')
-                    emit('action', {'type': 'player_names', 'data':
-                        {'player_names': player_names}
-                        }, room=room_id, broadcast=True)
-                    print('Player Names')
+                    join_game(game, player)
+                    # player_names = [player_name.name for player_name in game.players]
+                    # game = game.serialize()
+                    # player = player.serialize()
+                    # join_room(room_id)
+                    # emit('action', {'type': 'join_game', 'data':
+                    #     {'join_game': True, 'game': game, 'player': player}
+                    #     })
+                    # print('Join Game')
+                    # emit('action', {'type': 'player_names', 'data':
+                    #     {'player_names': player_names}
+                    #     }, room=room_id, broadcast=True)
                 else:
-                    leave_game()
+                    error_message(action['type'])
             else:
-                leave_game()
-
-    elif action['type'] == 'server/load_players':
-        game = Game.query.filter(
-            Game.game_id == action['data']['game_id']).one()
-        pass
+                error_message(action['type'])
 
 
+def error_message(action_type):
+    error = 'Unable to perform action: {}'.format(action_type)
+    return emit('action', {'type': 'message', 'data':
+        {'message': error}
+        })
+
+def login(account):
+    account = account.serialize()
+    return emit('action', {'type': 'login', 'data':
+        {'login': True, 'account': account}
+        })
 
 def logout():
     return emit('action', {'type': 'login', 'data':
-    {'login': False, 'account': None}
-    })
+        {'login': False, 'account': None}
+        })
 
-def leave_game():
+def join_game(game, player):
+    join_room(game.room_id)
+    load_players(game)
+    game = game.serialize()
+    player = player.serialize()
     return emit('action', {'type': 'join_game', 'data':
-    {'join_game': False, 'game': None, 'player': None}
-    })
+        {'join_game': True, 'game': game, 'player': player}
+        })
+
+def leave_game(game):
+    leave_room(game.room_id)
+    load_players(game)
+    return emit('action', {'type': 'join_game', 'data':
+        {'join_game': False, 'game': None, 'player': None}
+        })
+
+def load_players(game):
+    return emit('action', {'type': 'player_names', 'data':
+        {'player_names': [player.name for player in game.players]}
+        }, room=game.room_id, broadcast=True)
+    
 
 
 if __name__ == '__main__':

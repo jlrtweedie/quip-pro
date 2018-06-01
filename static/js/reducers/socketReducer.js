@@ -1,7 +1,9 @@
 // import { combineReducers } from 'redux';
 
 const initialState = {
-  message: {},
+  message: {
+    message: ''
+  },
   login: {
     login: false,
     account: {}
@@ -13,22 +15,6 @@ const initialState = {
   },
   player_names: {
     player_names: []
-  },
-  query: {
-    account: {},
-    game: {},
-    player: {}
-  }
-}
-
-export function PlayerNameReducer(state=initialState.player_names, action) {
-  switch(action.type) {
-    case 'player_names':
-      const player_names = Object.assign({}, action.data);
-      console.log(player_names);
-      return player_names;
-    default:
-      return state;
   }
 }
 
@@ -36,6 +22,7 @@ export function MessageReducer(state = initialState.message, action) {
   switch(action.type) {
     case 'message':
       const message = Object.assign({}, action.data);
+      console.log(message);
       return message;
     default:
       return state;
@@ -57,6 +44,16 @@ export function JoinGameReducer(state = initialState.join_game, action) {
     case 'join_game':
       const join_game = Object.assign({}, action.data);
       return join_game;
+    default:
+      return state;
+  }
+}
+
+export function PlayerNameReducer(state=initialState.player_names, action) {
+  switch(action.type) {
+    case 'player_names':
+      const player_names = Object.assign({}, action.data);
+      return player_names;
     default:
       return state;
   }
