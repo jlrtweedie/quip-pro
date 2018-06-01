@@ -31,27 +31,6 @@ def index():
 @sio.on('action')
 def socket_handler(action):
 
-    # if action['type'] == 'server/hello':
-    #     print('Got hello data!', action['data'])
-    #     emit('action', {'type': 'message', 'data': 'Good day!'})
-
-    # elif action['type'] == 'server/query':
-    #     account = None
-    #     game = None
-    #     player = None
-    #     if action['data'] == 'account':
-    #         account = Account.query.filter(Account.account_id == 1).one()
-    #         account = account.serialize()
-    #     elif action['data'] == 'game':
-    #         game = Game.query.filter(Game.game_id == 1).one()
-    #         account = game.serialize()
-    #     elif action['data'] == 'player':
-    #         player = Player.query.filter(Player.player_id == 1).one()
-    #         account = player.serialize()
-    #     emit('action', {'type': 'query', 'data':
-    #         {'account': account, 'game': game, 'player': player}
-    #         })
-
     if action['type'] == 'server/login':
         if action['data'] is None:
             logout()
@@ -87,17 +66,6 @@ def socket_handler(action):
                     player =  Player(game=game, name=name)
                     commit_to_db(player)
                     join_game(game, player)
-                    # player_names = [player_name.name for player_name in game.players]
-                    # game = game.serialize()
-                    # player = player.serialize()
-                    # join_room(room_id)
-                    # emit('action', {'type': 'join_game', 'data':
-                    #     {'join_game': True, 'game': game, 'player': player}
-                    #     })
-                    # print('Join Game')
-                    # emit('action', {'type': 'player_names', 'data':
-                    #     {'player_names': player_names}
-                    #     }, room=room_id, broadcast=True)
                 else:
                     error_message(action['type'])
             else:

@@ -13,7 +13,6 @@ import {
 	JoinGameReducer,
 	PlayerNameReducer
 } from './reducers/socketReducer';
-// import { rootReducer } from './reducers/socketReducer';
 
 import LoginContainer from './containers/loginContainer.jsx';
 import JoinGameContainer from './containers/joinGameContainer.jsx';
@@ -31,8 +30,6 @@ let store = applyMiddleware(SocketIoMiddleware)(createStore)(rootReducer);
 
 class App extends React.Component {
 	render() {
-		// const stateProps = this.props.store.getState();
-		// console.log(stateProps);
 		return (
 			<div>
         <LoginContainer store={store} />
@@ -44,7 +41,7 @@ class App extends React.Component {
 
 ReactDOM.render(
 	<Provider store={store}>
-  	<App store={store}/>
+  	<App />
   </Provider>,
   document.getElementById("content")
 );
