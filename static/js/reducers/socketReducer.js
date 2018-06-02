@@ -1,6 +1,6 @@
 const initialState = {
   message: {
-    message: ''
+    message: {}
   },
   login: {
     login: false,

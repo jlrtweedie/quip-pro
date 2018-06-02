@@ -58,7 +58,6 @@ def socket_handler(action):
                 commit_to_db(account)
                 login(account)
 
-
     elif action['type'] == 'server/join_game':
         if action['data'] is None:
             player_id = action['handle']['player_id']
@@ -81,7 +80,7 @@ def socket_handler(action):
                     player =  Player(game=game, name=name)
                     commit_to_db(player)
                     join_game(game, player)
-                elif player and len(game.players) >= 8:
+                elif not player and len(game.players) >= 8:
                     error_message(action['type'], 'Game is full')
                 else:
                     error_message(action['type'], 'Duplicate name')
