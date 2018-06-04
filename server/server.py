@@ -122,12 +122,12 @@ def socket_handler(action):
 
 def error_message(action_type, details):
     error = 'Unable to perform action: {}'.format(action_type)
-    return emit('action', {'type': 'message', 'data':
+    emit('action', {'type': 'message', 'data':
         {'message': error, 'details': details}
         })
 
 def start_game(game):
-    return emit('action', {'type': 'message', 'data':
+    emit('action', {'type': 'message', 'data':
         {'message': 'Game {} is starting'.format(game.room_id), 'details': None}
         }, room=game.room_id, broadcast=True)
         
@@ -136,12 +136,12 @@ def login(account, game=None):
     account = account.serialize()
     if game:
         game = game.serialize()
-    return emit('action', {'type': 'login', 'data':
+    emit('action', {'type': 'login', 'data':
         {'account': account, 'game': game}
         })
 
 def logout():
-    return emit('action', {'type': 'logout', 'data':
+    emit('action', {'type': 'logout', 'data':
         {'account': None, 'game': None}
         })
 
@@ -150,36 +150,25 @@ def join_game(game, player):
     load_players(game)
     game = game.serialize()
     player = player.serialize()
-    return emit('action', {'type': 'join_game', 'data':
+    emit('action', {'type': 'join_game', 'data':
         {'game': game, 'player': player}
         })
-
-# def create_game(account, game):
-#     account = account.serialize()
-#     game = game.serialize()
-#     return emit('action', {'type': 'create_game', 'data':
-#         {'account': account, 'game': game}
-#         })
 
 def leave_game(game):
     leave_room(game.room_id)
     load_players(game)
-    return emit('action', {'type': 'join_game', 'data':
+    emit('action', {'type': 'leave_game', 'data':
         {'game': None, 'player': None}
         })
 
 def delete_game(game):
-    # leave_game(game)
-    emit('action', {'type': 'join_game', 'data':
-    {'game': None, 'player': None}
-    })
-    emit('action', {'type': 'join_game', 'data':
-    {'game': None, 'player': None}
-    }, room=game.room_id, broadcast=True)
+    emit('action', {'type': 'leave_game', 'data':
+        {'game': None, 'player': None}
+        }, room=game.room_id, broadcast=True)
     close_room(game.room_id)
 
 def load_players(game):
-    return emit('action', {'type': 'player_names', 'data':
+    emit('action', {'type': 'player_names', 'data':
         {'names': [player.name for player in game.players]}
         }, room=game.room_id, broadcast=True)
 

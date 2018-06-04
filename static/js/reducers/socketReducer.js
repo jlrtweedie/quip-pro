@@ -1,6 +1,6 @@
 const initialState = {
   message: {
-    message: {}
+    message: null
   },
   login: {
     account: null,
@@ -10,12 +10,8 @@ const initialState = {
     game: null,
     player: null
   },
-  // create_game: {
-  //   account: {},
-  //   game: {}
-  // },
   playerNames: {
-    names: []
+    names: null
   }
 }
 
@@ -36,7 +32,7 @@ export function LoginReducer(state = initialState.login, action) {
       const login = Object.assign({}, action.data);
       return login;
     case 'logout':
-      const logout = initialState.login;
+      const logout = Object.assign({}, action.data);
       return logout;
     default:
       return state;
@@ -48,20 +44,13 @@ export function JoinGameReducer(state = initialState.joinGame, action) {
     case 'join_game':
       const joinGame = Object.assign({}, action.data);
       return joinGame;
+    case 'leave_game':
+      const leaveGame = Object.assign({}, action.data);
+      return leaveGame;
     default:
       return state;
   }
 }
-
-// export function CreateGameReducer(state = initialState.create_game, action) {
-//   switch (action.type) {
-//     case 'create_game':
-//       const create_game = Object.assign({}, action.data);
-//       return create_game;
-//     default:
-//       return state;
-//   }
-// }
 
 export function PlayerNameReducer(state=initialState.playerNames, action) {
   switch(action.type) {
