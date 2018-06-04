@@ -62,33 +62,33 @@ def socket_handler(action):
                 login(account)
 
     elif action['type'] == 'server/join_game':
-        if action['data'] is None:
-            player_id = action['handle']['player_id']
-            game_id = action['handle']['game_id']
-            player = Player.query.filter(Player.player_id == player_id).one()
-            game = Game.query.filter(Game.game_id == game_id).one()
-            commit_to_db(player, delete=True)
-            leave_game(game)
-        else:
-            room_id = action['data']['room_id'].upper()
-            name = action['data']['name']
-            game = Game.query.filter(
-                Game.room_id == room_id,
-                Game.finished_at == None).first()
-            if game:
-                player = Player.query.filter(
-                    Player.game_id == game.game_id,
-                    Player.name == name).first()
-                if not player and len(game.players) < 8:
-                    player =  Player(game=game, name=name)
-                    commit_to_db(player)
-                    join_game(game, player)
-                elif not player and len(game.players) >= 8:
-                    error_message(action['type'], 'Game is full')
-                else:
-                    error_message(action['type'], 'Duplicate name')
+        room_id = action['data']['room_id'].upper()
+        name = action['data']['name']
+        game = Game.query.filter(
+            Game.room_id == room_id,
+            Game.finished_at == None).first()
+        if game:
+            player = Player.query.filter(
+                Player.game_id == game.game_id,
+                Player.name == name).first()
+            if not player and len(game.players) < 8:
+                player =  Player(game=game, name=name)
+                commit_to_db(player)
+                join_game(game, player)
+            elif not player and len(game.players) >= 8:
+                error_message(action['type'], 'Game is full')
             else:
-                error_message(action['type'], 'Invalid room')
+                error_message(action['type'], 'Duplicate name')
+        else:
+            error_message(action['type'], 'Invalid room')
+
+    elif action['type'] == 'server/leave_game':
+        player_id = action['data']['player_id']
+        game_id = action['data']['game_id']
+        player = Player.query.filter(Player.player_id == player_id).one()
+        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
+        commit_to_db(player, delete=True)
+        leave_game(game)
 
     elif action['type'] == 'server/create_game':
         account_id = action['data']
@@ -107,12 +107,17 @@ def socket_handler(action):
         account_id = action['data']['account_id']
         game_id = action['data']['game_id']
         account = Account.query.filter(Account.account_id == account_id).one()
-        game = Game.query.filter(Game.game_id == game_id).one()
+        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
         game.finished_at = datetime.now()
         game.num_players = len(game.players)
         commit_to_db(game)
         delete_game(game)
         login(account)
+
+    elif action['type'] == 'server/start_game':
+        game_id = action['data']['game_id']
+        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
+        start_game(game)
 
 
 def error_message(action_type, details):
@@ -120,6 +125,12 @@ def error_message(action_type, details):
     return emit('action', {'type': 'message', 'data':
         {'message': error, 'details': details}
         })
+
+def start_game(game):
+    return emit('action', {'type': 'message', 'data':
+        {'message': 'Game {} is starting'.format(game.room_id), 'details': None}
+        }, room=game.room_id, broadcast=True)
+        
 
 def login(account, game=None):
     account = account.serialize()

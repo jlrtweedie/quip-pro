@@ -7,8 +7,8 @@ class LeaveGame extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit() {
-    this.props.dispatch({type:'server/join_game', data: null, handle:
+  handleSubmit(e) {
+    this.props.dispatch({type:'server/'.concat(e.target.name), data:
       {player_id: this.props.player.player_id, game_id: this.props.game.game_id}});
   }
 

@@ -21,7 +21,7 @@ class JoinGame extends React.Component {
   }
 
   handleSubmit(e) {
-    this.props.dispatch({type:'server/join_game', data: this.state.data});
+    this.props.dispatch({type:'server/'.concat(e.target.name), data: this.state.data});
   }
 
   render() {
