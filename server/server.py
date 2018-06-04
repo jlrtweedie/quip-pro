@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
 from model import Account, Game, Player, connect_to_db, commit_to_db, \
     generate_room_id
 from bcrypt import checkpw, hashpw, gensalt
+from datetime import datetime
 
 
 async_mode = None
@@ -32,16 +33,18 @@ def index():
 def socket_handler(action):
 
     if action['type'] == 'server/login':
-        if action['data'] is None:
-            logout()
+        account = Account.query.filter(
+            Account.email == action['data']['email']).first()
+        if account and checkpw(action['data']['password'].encode('utf-8'),
+                               account.password.encode('utf-8')):
+            game = Game.query.filter(
+                Game.account == account, Game.finished_at == None).first()
+            login(account, game)
         else:
-            account = Account.query.filter(
-                Account.email == action['data']['email']).first()
-            if account and checkpw(action['data']['password'].encode('utf-8'),
-                                   account.password.encode('utf-8')):
-                login(account)
-            else:
-                error_message(action['type'], 'Invalid login')
+            error_message(action['type'], 'Invalid login')
+
+    elif action['type'] == 'server/logout':
+        logout()
 
     elif action['type'] == 'server/register':
         email = action['data']['email']
@@ -96,9 +99,19 @@ def socket_handler(action):
         if not active_game:
             game = Game(account=account, room_id=generate_room_id())
             commit_to_db(game)
-            create_game(account, game)
+            login(account, game)
         else:
             error_message(action['type'], 'Game {} is active'.format(active_game.room_id))
+
+    elif action['type'] == 'server/delete_game':
+        account_id = action['data']['account_id']
+        game_id = action['data']['game_id']
+        account = Account.query.filter(Account.account_id == account_id).one()
+        game = Game.query.filter(Game.game_id == game_id).one()
+        game.finished_at = datetime.now()
+        game.num_players = len(game.players)
+        commit_to_db(game)
+        login(account)
 
 
 def error_message(action_type, details):
@@ -107,15 +120,17 @@ def error_message(action_type, details):
         {'message': error, 'details': details}
         })
 
-def login(account):
+def login(account, game=None):
     account = account.serialize()
+    if game:
+        game = game.serialize()
     return emit('action', {'type': 'login', 'data':
-        {'login': True, 'account': account}
+        {'account': account, 'game': game}
         })
 
 def logout():
-    return emit('action', {'type': 'login', 'data':
-        {'login': False, 'account': None}
+    return emit('action', {'type': 'logout', 'data':
+        {'account': None, 'game': None}
         })
 
 def join_game(game, player):
@@ -145,7 +160,7 @@ def load_players(game):
     return emit('action', {'type': 'player_names', 'data':
         {'player_names': [player.name for player in game.players]}
         }, room=game.room_id, broadcast=True)
-    
+
 
 
 if __name__ == '__main__':

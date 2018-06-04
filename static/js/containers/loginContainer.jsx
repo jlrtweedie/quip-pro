@@ -5,20 +5,25 @@ import { connect } from 'react-redux';
 import Login from '../components/login.jsx';
 import Logout from '../components/logout.jsx';
 import CreateGame from '../components/createGame.jsx';
+import DeleteGame from '../components/deleteGame.jsx';
 
 class LoginContainer extends React.Component {
 	render() {
 		const stateProps = this.props.store.getState().login;
-		const login = stateProps.login;
 		const account = stateProps.account;
+		const game = stateProps.game;
 		return (
         <div>
-				  { login === false ? (
+				  { account === null ? (
 				  	<Login />
 				  ) : (
 				  	<div>
 				  		<Logout account={account} />
-				  		<CreateGame account={account} />
+							{ game === null ? (
+								<CreateGame account={account} />
+							) : (
+								<DeleteGame account={account} game={game} />
+							) }
 				  	</div>
 				  ) }
         </div>

@@ -15,6 +15,7 @@
     "sqlalchemy",
     "flask",
     "react",
+    "redux",
     "npm",
     "webpack",
     "socketio"

@@ -7,9 +7,8 @@ class CreateGame extends React.Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
-
-handleSubmit() {
-	this.props.dispatch({type:'server/create_game', data: this.props.account.account_id});
+handleSubmit(e) {
+	this.props.dispatch({type:'server/'.concat(e.target.name), data: this.props.account.account_id});
 }
 
 render() {

@@ -3,8 +3,8 @@ const initialState = {
     message: {}
   },
   login: {
-    login: false,
-    account: {}
+    account: null,
+    game: null
   },
   join_game: {
     join_game: false,
@@ -36,6 +36,9 @@ export function LoginReducer(state = initialState.login, action) {
     case 'login':
       const login = Object.assign({}, action.data);
       return login;
+    case 'logout':
+      const logout = initialState.login;
+      return logout;
     default:
       return state;
   }
