@@ -11,7 +11,7 @@ import {
 	MessageReducer,
 	LoginReducer,
 	JoinGameReducer,
-	CreateGameReducer,
+	// CreateGameReducer,
 	PlayerNameReducer
 } from './reducers/socketReducer';
 
@@ -21,9 +21,9 @@ import JoinGameContainer from './containers/joinGameContainer.jsx';
 const rootReducer = combineReducers({
 	message: MessageReducer,
 	login: LoginReducer,
-	join_game: JoinGameReducer,
-	create_game: CreateGameReducer,
-	player_names: PlayerNameReducer
+	joinGame: JoinGameReducer,
+	// create_game: CreateGameReducer,
+	playerNames: PlayerNameReducer
 })
 
 let socket = io('http://localhost:5000');

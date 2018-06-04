@@ -6,17 +6,16 @@ const initialState = {
     account: null,
     game: null
   },
-  join_game: {
-    join_game: false,
-    game: {},
-    player: {}
+  joinGame: {
+    game: null,
+    player: null
   },
-  create_game: {
-    account: {},
-    game: {}
-  },
-  player_names: {
-    player_names: []
+  // create_game: {
+  //   account: {},
+  //   game: {}
+  // },
+  playerNames: {
+    names: []
   }
 }
 
@@ -44,31 +43,31 @@ export function LoginReducer(state = initialState.login, action) {
   }
 }
 
-export function JoinGameReducer(state = initialState.join_game, action) {
+export function JoinGameReducer(state = initialState.joinGame, action) {
   switch (action.type) {
     case 'join_game':
-      const join_game = Object.assign({}, action.data);
-      return join_game;
+      const joinGame = Object.assign({}, action.data);
+      return joinGame;
     default:
       return state;
   }
 }
 
-export function CreateGameReducer(state = initialState.create_game, action) {
-  switch (action.type) {
-    case 'create_game':
-      const create_game = Object.assign({}, action.data);
-      return create_game;
-    default:
-      return state;
-  }
-}
+// export function CreateGameReducer(state = initialState.create_game, action) {
+//   switch (action.type) {
+//     case 'create_game':
+//       const create_game = Object.assign({}, action.data);
+//       return create_game;
+//     default:
+//       return state;
+//   }
+// }
 
-export function PlayerNameReducer(state=initialState.player_names, action) {
+export function PlayerNameReducer(state=initialState.playerNames, action) {
   switch(action.type) {
     case 'player_names':
-      const player_names = Object.assign({}, action.data);
-      return player_names;
+      const playerNames = Object.assign({}, action.data);
+      return playerNames;
     default:
       return state;
   }

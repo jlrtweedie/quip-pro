@@ -2,7 +2,7 @@ import React from 'react';
 
 class DisplayPlayers extends React.Component {
 	render() {
-		let players = this.props.player_names;
+		let players = this.props.names;
 		let playerList = players.map((player, i) => {
 			return <li key={i}>{ player }</li>;
 		});

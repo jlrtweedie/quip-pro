@@ -9,18 +9,18 @@ import DisplayPlayers from '../components/displayPlayers.jsx';
 class JoinGameContainer extends React.Component {
   render() {
     const stateProps = this.props.store.getState();
-    const join_game = stateProps.join_game.join_game;
-    const game = stateProps.join_game.game;
-    const player = stateProps.join_game.player;
-    const player_names = stateProps.player_names.player_names;
+    // const join_game = stateProps.join_game.join_game;
+    const game = stateProps.joinGame.game;
+    const player = stateProps.joinGame.player;
+    const names = stateProps.playerNames.names;
     return (
       <div>
-        { join_game === false ? (
+        { game === null ? (
           <JoinGame />
         ) : (
           <div>
             <LeaveGame game={game} player={player} />
-            <DisplayPlayers player_names={player_names} />
+            <DisplayPlayers names={names} />
           </div>
         ) }
       </div>
@@ -30,8 +30,8 @@ class JoinGameContainer extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    join_game: state.join_game,
-    player_names: state.player_names
+    joinGame: state.joinGame,
+    playerNames: state.playerNames
   }
 }
 
