@@ -16,8 +16,8 @@ app.config['SECRET_KEY'] = 'secret'
 sio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
-
 connect_to_db(app)
+
 
 def background_thread():
     count = 0
@@ -54,7 +54,8 @@ def socket_handler(action):
         if not account:
             password = hashpw(password.encode('utf-8'), gensalt())
             try:
-                account = Account(email=email, password=password.decode('utf-8'))
+                account = Account(email=email,
+                                  password=password.decode('utf-8'))
             except AssertionError:
                 error_message(action['type'], 'Invalid email address')
             else:
@@ -86,7 +87,8 @@ def socket_handler(action):
         player_id = action['data']['player_id']
         game_id = action['data']['game_id']
         player = Player.query.filter(Player.player_id == player_id).one()
-        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
+        game = Game.query.filter(
+            Game.game_id == game_id, Game.finished_at == None).one()
         commit_to_db(player, delete=True)
         leave_game(game)
 
@@ -101,22 +103,25 @@ def socket_handler(action):
             commit_to_db(game)
             login(account, game)
         else:
-            error_message(action['type'], 'Game {} is active'.format(active_game.room_id))
+            error_message(action['type'],
+                'Game {} is active'.format(active_game.room_id))
 
     elif action['type'] == 'server/delete_game':
         account_id = action['data']['account_id']
         game_id = action['data']['game_id']
         account = Account.query.filter(Account.account_id == account_id).one()
-        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
+        game = Game.query.filter(
+            Game.game_id == game_id, Game.finished_at == None).one()
         game.finished_at = datetime.now()
         game.num_players = len(game.players)
-        commit_to_db(game)
+        commit_to_db()
         delete_game(game)
         login(account)
 
     elif action['type'] == 'server/start_game':
         game_id = action['data']['game_id']
-        game = Game.query.filter(Game.game_id == game_id, Game.finished_at == None).one()
+        game = Game.query.filter(
+            Game.game_id == game_id, Game.finished_at == None).one()
         start_game(game)
 
 
@@ -128,7 +133,7 @@ def error_message(action_type, details):
 
 def start_game(game):
     emit('action', {'type': 'message', 'data':
-        {'message': 'Game {} is starting'.format(game.room_id), 'details': None}
+        {'message': 'Starting game {}'.format(game.room_id), 'details': None}
         }, room=game.room_id, broadcast=True)
         
 

@@ -114,12 +114,8 @@ def example_data():
 	p2 = Player(game=game, name='Player 2')
 	p3 = Player(game=game, name='Player 3')
 	p4 = Player(game=game, name='Player 4')
-	# p5 = Player(game=game, name='Player 5')
-	# p6 = Player(game=game, name='Player 6')
-	# p7 = Player(game=game, name='Player 7')
-	# p8 = Player(game=game, name='Player 8')
 
-	db.session.add_all([account, game, p1, p2, p3, p4]) #, p5, p6, p7, p8])
+	db.session.add_all([account, game, p1, p2, p3, p4])
 	db.session.commit()
 	print('Test data seeded.')
 
