@@ -111,6 +111,7 @@ def socket_handler(action):
         game.finished_at = datetime.now()
         game.num_players = len(game.players)
         commit_to_db(game)
+        delete_game(game)
         login(account)
 
 
@@ -142,12 +143,12 @@ def join_game(game, player):
         {'join_game': True, 'game': game, 'player': player}
         })
 
-def create_game(account, game):
-    account = account.serialize()
-    game = game.serialize()
-    return emit('action', {'type': 'create_game', 'data':
-        {'account': account, 'game': game}
-        })
+# def create_game(account, game):
+#     account = account.serialize()
+#     game = game.serialize()
+#     return emit('action', {'type': 'create_game', 'data':
+#         {'account': account, 'game': game}
+#         })
 
 def leave_game(game):
     leave_room(game.room_id)
@@ -155,6 +156,16 @@ def leave_game(game):
     return emit('action', {'type': 'join_game', 'data':
         {'join_game': False, 'game': None, 'player': None}
         })
+
+def delete_game(game):
+    # leave_game(game)
+    emit('action', {'type': 'join_game', 'data':
+    {'join_game': False, 'game': None, 'player': None}
+    })
+    emit('action', {'type': 'join_game', 'data':
+    {'join_game': False, 'game': None, 'player': None}
+    }, room=game.room_id, broadcast=True)
+    close_room(game.room_id)
 
 def load_players(game):
     return emit('action', {'type': 'player_names', 'data':
