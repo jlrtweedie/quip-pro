@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-class DeleteGame extends React.Component {
+class ChangeGameState extends React.Component {
   constructor(props) {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,7 +16,8 @@ class DeleteGame extends React.Component {
   render() {
     return (
       <div>
-        <h2>End Game {this.props.game.room_id}</h2>
+        <h2>Start or End Game {this.props.game.room_id}</h2>
+        <button onClick={this.handleSubmit} name="start_game">Start Game</button> &nbsp;
         <button onClick={this.handleSubmit} name="delete_game">End Game</button>
       </div>
     )
@@ -29,4 +30,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(DeleteGame);
+export default connect(mapStateToProps)(ChangeGameState);

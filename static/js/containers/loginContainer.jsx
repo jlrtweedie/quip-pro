@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import Login from '../components/login.jsx';
 import Logout from '../components/logout.jsx';
 import CreateGame from '../components/createGame.jsx';
-import DeleteGame from '../components/deleteGame.jsx';
+import ChangeGameState from '../components/changeGameState.jsx';
 
 class LoginContainer extends React.Component {
 	render() {
@@ -22,7 +22,7 @@ class LoginContainer extends React.Component {
 							{ game === null ? (
 								<CreateGame account={account} />
 							) : (
-								<DeleteGame account={account} game={game} />
+								<ChangeGameState account={account} game={game} />
 							) }
 				  	</div>
 				  ) }

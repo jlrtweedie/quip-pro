@@ -9,7 +9,6 @@ import DisplayPlayers from '../components/displayPlayers.jsx';
 class JoinGameContainer extends React.Component {
   render() {
     const stateProps = this.props.store.getState();
-    // const join_game = stateProps.join_game.join_game;
     const game = stateProps.joinGame.game;
     const player = stateProps.joinGame.player;
     const names = stateProps.playerNames.names;
