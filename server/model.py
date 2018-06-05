@@ -118,6 +118,8 @@ class PlayerPrompt(db.Model):
 	prompt_id = db.Column(db.Integer, db.ForeignKey('prompts.prompt_id'))
 	next_id = db.Column(db.Integer, nullable=True)
 
+	player = db.relationship('Player', backref=db.backref('playerprompts'))
+
 	def __repr__(self):
 		return '<Node {}, Player {}, Prompt {}, Next {}>'.format(
 			self.node_id, self.player_id, self.prompt_id, self.next_id)
@@ -131,7 +133,58 @@ class PlayerPrompt(db.Model):
 		}
 
 
+class Answer(db.Model):
+	"""An answer to a prompt"""
+
+	__tablename__ = 'answers'
+
+	answer_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	player_id = db.Column(db.Integer, db.ForeignKey('players.player_id'))
+	prompt_id = db.Column(db.Integer, db.ForeignKey('prompts.prompt_id'))
+	text = db.Column(db.String(24), nullable=True)
+
+	player = db.relationship('Player', backref=db.backref('answers'))
+	prompt = db.relationship('Prompt', backref=db.backref('answers'))
+
+	def __repr__(self):
+		return '<Answer {}: {}; Player {}, Prompt {}>'.format(
+			self.answer_id, self.text, self.player_id, self.prompt_id)
+
+	def serialize(self):
+		return {
+			'answer_id': self.answer_id,
+			'player_id': self.player_id,
+			'prompt_id': self.prompt_id,
+			'text': self.text
+		}
+
+
+class Vote(db.Model):
+	"""A vote for an answer to a prompt from a given player"""
+
+	__tablename__ = 'votes'
+
+	vote_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	player_id = db.Column(db.Integer, db.ForeignKey('players.player_id'))
+	answer_id = db.Column(db.Integer, db.ForeignKey('answers.answer_id'))
+
+	player = db.relationship('Player', backref=db.backref('votes'))
+	answer = db.relationship('Answer', backref=db.backref('votes'))
+
+	def __repr__(self):
+		return '<Vote {}, Player {}, Answer {}>'.format(
+			self.vote_id, self.player_id, self.answer_id)
+
+	def serialize(self):
+		return {
+			'vote_id': self.vote_id,
+			'player_id': self.player_id,
+			'answer_id': self.answer_id
+		}
+
+
 ################################################################################
+
 
 def connect_to_db(app, db_uri='postgresql:///quippro'):
 	"""Connect app to database."""
@@ -193,6 +246,13 @@ def generate_room_id():
 			return room_id
 
 
+def end_game(game):
+	"""Ends a game by giving it a finish time and counts connected players"""
+	game.finished_at = datetime.now()
+    game.num_players = len(game.players)
+    commit_to_db()
+
+
 def assign_prompts(players):
 	"""Creates PlayerPrompt nodes and populates their next fields"""
 	nodes = []
@@ -209,6 +269,22 @@ def assign_prompts(players):
 		print(node.node_id)
 		node.next_id = nodes[i-1].node_id
 	db.session.commit()
+
+
+def score_answers(answer1, answer2):
+	"""Assigns a score to answers based on the fraction of votes received"""
+	p1 = Player.query.filter(Player.player_id == answer1.player_id).one()
+	p2 = Player.query.filter(Player.player_id == answer2.player_id).one()
+	v1 = len(answer1.votes)
+	v2 = len(answer2.votes)
+	p1.score += int(round((1000 * v1 / (v1 + v2)), -1))
+	if v2 == 0 and v1 != 0:
+		p1.score += 500
+	p2.score += int(round((1000 * v2 / (v1 + v2)), -1))
+	if v1 == 0 and v2 != 0:
+		p2.score += 500
+	db.session.commit()
+
 
 
 ################################################################################

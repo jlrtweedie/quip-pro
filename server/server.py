@@ -3,8 +3,8 @@ from threading import Lock
 from flask import  Flask, render_template, session, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
-from model import Account, Game, Player, connect_to_db, commit_to_db, \
-    generate_room_id, assign_prompts
+from model import Account, Game, Player, Prompt, PlayerPrompt, Answer, Vote, \
+    connect_to_db, commit_to_db, generate_room_id, assign_prompts, end_game
 from bcrypt import checkpw, hashpw, gensalt
 from datetime import datetime
 
@@ -112,9 +112,7 @@ def socket_handler(action):
         account = Account.query.filter(Account.account_id == account_id).one()
         game = Game.query.filter(
             Game.game_id == game_id, Game.finished_at == None).one()
-        game.finished_at = datetime.now()
-        game.num_players = len(game.players)
-        commit_to_db()
+        end_game(game)
         delete_game(game)
         login(account)
 
@@ -122,6 +120,7 @@ def socket_handler(action):
         game_id = action['data']['game_id']
         game = Game.query.filter(
             Game.game_id == game_id, Game.finished_at == None).one()
+        assign_prompts(game.players)
         start_game(game)
 
 
@@ -136,7 +135,6 @@ def start_game(game):
         {'message': 'Starting game {}'.format(game.room_id), 'details': None}
         }, room=game.room_id, broadcast=True)
         
-
 def login(account, game=None):
     account = account.serialize()
     if game:
