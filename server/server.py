@@ -4,7 +4,7 @@ from flask import  Flask, render_template, session, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from model import Account, Game, Player, connect_to_db, commit_to_db, \
-    generate_room_id
+    generate_room_id, assign_prompts
 from bcrypt import checkpw, hashpw, gensalt
 from datetime import datetime
 

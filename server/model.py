@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from datetime import datetime
 from bcrypt import hashpw, gensalt
+from random import sample, shuffle
 
 app = Flask(__name__)
 db = SQLAlchemy()
@@ -83,10 +84,52 @@ class Player(db.Model):
 
 	def serialize(self):
 		return {
-		'player_id': self.player_id,
-		'game_id': self.game_id,
-		'name': self.name
+			'player_id': self.player_id,
+			'game_id': self.game_id,
+			'name': self.name
 		}
+
+
+class Prompt(db.Model):
+	"""An individual prompt question"""
+
+	__tablename__ = 'prompts'
+
+	prompt_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	text = db.Column(db.String(64), unique=True)
+
+	def __repr__(self):
+		return '<Prompt {}: {}>'.format(self.prompt_id, self.text)
+
+	def serialize(self):
+		return {
+			'prompt_id': self.prompt_id,
+			'text': self.text
+		}
+
+
+class PlayerPrompt(db.Model):
+	"""A player/prompt pair node"""
+
+	__tablename__ = 'playerprompts'
+
+	node_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	player_id = db.Column(db.Integer, db.ForeignKey('players.player_id'))
+	prompt_id = db.Column(db.Integer, db.ForeignKey('prompts.prompt_id'))
+	next_id = db.Column(db.Integer, nullable=True)
+
+	def __repr__(self):
+		return '<Node {}, Player {}, Prompt {}, Next {}>'.format(
+			self.node_id, self.player_id, self.prompt_id, self.next_id)
+
+	def serialize(self):
+		return {
+			'node_id': self.node_id,
+			'player_id': self.player_id,
+			'prompt_id': self.prompt_id,
+			'next_id': self.next_id
+		}
+
 
 ################################################################################
 
@@ -115,7 +158,17 @@ def example_data():
 	p3 = Player(game=game, name='Player 3')
 	p4 = Player(game=game, name='Player 4')
 
-	db.session.add_all([account, game, p1, p2, p3, p4])
+	pr1 = Prompt(text='Prompt 1')
+	pr2 = Prompt(text='Prompt 2')
+	pr3 = Prompt(text='Prompt 3')
+	pr4 = Prompt(text='Prompt 4')
+	pr5 = Prompt(text='Prompt 5')
+	pr6 = Prompt(text='Prompt 6')
+	pr7 = Prompt(text='Prompt 7')
+	pr8 = Prompt(text='Prompt 8')
+
+	db.session.add_all([account, game, p1, p2, p3, p4,
+		pr1, pr2, pr3, pr4, pr5, pr6, pr7, pr8])
 	db.session.commit()
 	print('Test data seeded.')
 
@@ -139,6 +192,26 @@ def generate_room_id():
 								 Game.finished_at == None).first():
 			return room_id
 
+
+def assign_prompts(players):
+	"""Creates PlayerPrompt nodes and populates their next fields"""
+	nodes = []
+	shuffle(players)
+	prompts = sample(Prompt.query.all(), len(players))
+	for player in players:
+		prompt = prompts.pop()
+		nodes.append(PlayerPrompt(player_id=player.player_id,
+								  prompt_id=prompt.prompt_id))
+	db.session.add_all(nodes)
+	db.session.commit()
+
+	for i, node in enumerate(nodes):
+		print(node.node_id)
+		node.next_id = nodes[i-1].node_id
+	db.session.commit()
+
+
+################################################################################
 
 if __name__ == '__main__':
 

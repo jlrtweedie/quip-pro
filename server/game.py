@@ -33,11 +33,13 @@ class Prompt():
 class Answer():
 	"""Answer container"""
 
-	def __init__(self, _answer):
+	def __init__(self, _answer, player):
 		self._answer = _answer
+		self.player = player
+		self.voters = []
 
 	def __repr__(self):
-		return '<Answer: {}>'.format(self._answer)
+		return '<Answer: {}; Player: {}>'.format(self._answer, self.player)
 
 
 class Vote():
