@@ -277,6 +277,8 @@ def score_answers(answer1, answer2):
 	p2 = Player.query.filter(Player.player_id == answer2.player_id).one()
 	v1 = len(answer1.votes)
 	v2 = len(answer2.votes)
+	if v1 + v2 == 0:
+		return None
 	p1.score += int(round((1000 * v1 / (v1 + v2)), -1))
 	if v2 == 0 and v1 != 0:
 		p1.score += 500
@@ -285,6 +287,10 @@ def score_answers(answer1, answer2):
 		p2.score += 500
 	db.session.commit()
 
+
+def get_winner(game):
+	"""Returns the player with the highest score"""
+	return Player.query.filter(Player.game == game).order_by(Player.score).first()
 
 
 ################################################################################
