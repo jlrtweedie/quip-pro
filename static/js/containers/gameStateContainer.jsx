@@ -47,7 +47,7 @@ class GameStateContainer extends React.Component {
 					<div>
 					{ phase === 'voting' ? (
 						<div>
-						<Prompt prompt={prompt} />
+						{/* <Prompt prompt={prompt} /> */}
 							{ waiting === false ? (
 								<div>{ answerList }</div>
 							) : (

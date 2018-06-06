@@ -143,11 +143,13 @@ def socket_handler(action):
         node = PlayerPrompt.query.filter(
             PlayerPrompt.player_id == player_id).first()
         if prompt == node.prompt:
+            print(True)
             next_node = PlayerPrompt.query.filter(
                 PlayerPrompt.node_id == node.next_id).one()
             next_prompt = next_node.prompt
             answer_phase(next_prompt)
         else:
+            print(False)
             answer_wait()
 
 
