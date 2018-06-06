@@ -20,23 +20,27 @@ class GameStateContainer extends React.Component {
 		const votes = stateProps.gameState.votes;
 		const scores = stateProps.gameState.scores;
 
-		// if (answers) {
-		// 	let answerList = answers.map((answer, i) => {
-		// 		return (
-		// 			<div>
-		// 				<Vote player={player} answer={answer}
-		//          phase={phase} waiting={waiting} />
-		// 				{ votes !== null ? (
-		// 					votes.map((vote, i) => {
-		// 						return <DisplayPlayers players={vote} />
-		// 					})
-		// 				) : (
-		// 					<div></div>
-		// 				) }
-		// 			</div>
-		// 		);
-		// 	});
-		// }
+		if (answers !== null) {
+			let answerList = answers.map((answer, i) => {
+				return (
+					<div>
+						<Vote player={player} answer={answer}
+		         phase={phase} waiting={waiting} />
+						{ votes !== null ? (
+							votes.map((vote, i) => {
+								return <DisplayPlayers players={vote} />
+							})
+						) : (
+							<div></div>
+						) }
+					</div>
+				);
+			});
+		} else {
+			let answerList = null;
+			// console.log(answerList);
+		}
+
 
 		//
 		// if (scores) {
@@ -69,7 +73,10 @@ class GameStateContainer extends React.Component {
 							<div>
 								{ phase === 'voting' ? (
 									<div>
-										<h2>Voting</h2>
+										{ answers.map((answer, i) =>
+											<Vote player={player} answer={answer}
+									    	phase={phase} waiting={waiting} />
+										) }
 									</div>
 								) : (
 									<div>
