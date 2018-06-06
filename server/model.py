@@ -1,12 +1,11 @@
 import sys
 import string
 import random
-from flask import Flask, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from datetime import datetime
 from bcrypt import hashpw, gensalt
-from random import sample, shuffle
 
 app = Flask(__name__)
 db = SQLAlchemy()
@@ -141,15 +140,15 @@ class Answer(db.Model):
 
 	answer_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	player_id = db.Column(db.Integer, db.ForeignKey('players.player_id'))
-	prompt_id = db.Column(db.Integer, db.ForeignKey('prompts.prompt_id'))
+	node_id = db.Column(db.Integer, db.ForeignKey('playerprompts.node_id'))
 	text = db.Column(db.String(24), nullable=True)
 
 	player = db.relationship('Player', backref=db.backref('answers'))
-	prompt = db.relationship('Prompt')
+	node = db.relationship('PlayerPrompt', backref=db.backref('answers'))
 
 	def __repr__(self):
-		return '<Answer {}: {}; Player {}, Prompt {}>'.format(
-			self.answer_id, self.text, self.player_id, self.prompt_id)
+		return '<Answer {}: {}; Player {}, Node {}>'.format(
+			self.answer_id, self.text, self.player_id, self.node_id)
 
 	def serialize(self):
 		return {
@@ -207,23 +206,124 @@ def example_data():
 	account = Account(email='test@test.com', password=password.decode('utf-8'))
 	game = Game(account=account, room_id='ABCD')
 
-	# p1 = Player(game=game, name='Player 1')
-	# p2 = Player(game=game, name='Player 2')
-	# p3 = Player(game=game, name='Player 3')
-	# p4 = Player(game=game, name='Player 4')
+	p1 = Player(game=game, name='P1')
+	p2 = Player(game=game, name='P2')
+	p3 = Player(game=game, name='P3')
+	p4 = Player(game=game, name='P4')
+	p5 = Player(game=game, name='P5')
+	p6 = Player(game=game, name='P6')
+	p7 = Player(game=game, name='P7')
+	p8 = Player(game=game, name='P8')
 
-	pr1 = Prompt(text='Prompt 1')
-	pr2 = Prompt(text='Prompt 2')
-	pr3 = Prompt(text='Prompt 3')
-	pr4 = Prompt(text='Prompt 4')
-	pr5 = Prompt(text='Prompt 5')
-	pr6 = Prompt(text='Prompt 6')
-	pr7 = Prompt(text='Prompt 7')
-	pr8 = Prompt(text='Prompt 8')
+	pr1 = Prompt(text='Pr1')
+	pr2 = Prompt(text='Pr2')
+	pr3 = Prompt(text='Pr3')
+	pr4 = Prompt(text='Pr4')
+	pr5 = Prompt(text='Pr5')
+	pr6 = Prompt(text='Pr6')
+	pr7 = Prompt(text='Pr7')
+	pr8 = Prompt(text='Pr8')
 
-	db.session.add_all([account, game, # p1, p2, p3, p4,
-		pr1, pr2, pr3, pr4, pr5, pr6, pr7, pr8])
+	n1 = PlayerPrompt(player=p1, prompt=pr1, next_id=2)
+	n2 = PlayerPrompt(player=p2, prompt=pr2, next_id=3)
+	n3 = PlayerPrompt(player=p3, prompt=pr3, next_id=4)
+	n4 = PlayerPrompt(player=p4, prompt=pr4, next_id=5)
+	n5 = PlayerPrompt(player=p5, prompt=pr5, next_id=6)
+	n6 = PlayerPrompt(player=p6, prompt=pr6, next_id=7)
+	n7 = PlayerPrompt(player=p7, prompt=pr7, next_id=8)
+	n8 = PlayerPrompt(player=p8, prompt=pr8, next_id=1)
+
+	a11 = Answer(player=p1, node=n1, text='A11')
+	a12 = Answer(player=p1, node=n2, text='A12')
+	a22 = Answer(player=p2, node=n2, text='A22')
+	a23 = Answer(player=p2, node=n3, text='A23')
+	a33 = Answer(player=p3, node=n3, text='A33')
+	a34 = Answer(player=p3, node=n4, text='A34')
+	a44 = Answer(player=p4, node=n4, text='A44')
+	a45 = Answer(player=p4, node=n5, text='A45')
+	a55 = Answer(player=p5, node=n5, text='A55')
+	a56 = Answer(player=p5, node=n6, text='A56')
+	a66 = Answer(player=p6, node=n6, text='A66')
+	a67 = Answer(player=p6, node=n7, text='A67')
+	a77 = Answer(player=p7, node=n7, text='A77')
+	a78 = Answer(player=p7, node=n8, text='A78')
+	a88 = Answer(player=p8, node=n8, text='A88')
+	a81 = Answer(player=p8, node=n1, text='A81')
+
+	v13 = Vote(player=p1, answer=a33)
+	v14 = Vote(player=p1, answer=a44)
+	v15 = Vote(player=p1, answer=a55)
+	v16 = Vote(player=p1, answer=a66)
+	v17 = Vote(player=p1, answer=a77)
+	v18 = Vote(player=p1, answer=a88)
+
+	v24 = Vote(player=p2, answer=a44)
+	v25 = Vote(player=p2, answer=a55)
+	v26 = Vote(player=p2, answer=a66)
+	v27 = Vote(player=p2, answer=a77)
+	v28 = Vote(player=p2, answer=a88)
+	v21 = Vote(player=p2, answer=a11)
+
+	v31 = Vote(player=p3, answer=a11)
+	v32 = Vote(player=p3, answer=a22)
+	v35 = Vote(player=p3, answer=a55)
+	v36 = Vote(player=p3, answer=a66)
+	v37 = Vote(player=p3, answer=a77)
+	v38 = Vote(player=p3, answer=a88)
+
+	v41 = Vote(player=p4, answer=a11)
+	v42 = Vote(player=p4, answer=a22)
+	v43 = Vote(player=p4, answer=a33)
+	v46 = Vote(player=p4, answer=a66)
+	v47 = Vote(player=p4, answer=a77)
+	v48 = Vote(player=p4, answer=a88)
+
+	v51 = Vote(player=p5, answer=a11)
+	v52 = Vote(player=p5, answer=a22)
+	v53 = Vote(player=p5, answer=a33)
+	v54 = Vote(player=p5, answer=a44)
+	v57 = Vote(player=p5, answer=a77)
+	v58 = Vote(player=p5, answer=a88)
+
+	v61 = Vote(player=p6, answer=a11)
+	v62 = Vote(player=p6, answer=a22)
+	v63 = Vote(player=p6, answer=a33)
+	v64 = Vote(player=p6, answer=a44)
+	v65 = Vote(player=p6, answer=a55)
+	v68 = Vote(player=p6, answer=a88)
+
+	v71 = Vote(player=p7, answer=a11)
+	v72 = Vote(player=p7, answer=a22)
+	v73 = Vote(player=p7, answer=a33)
+	v74 = Vote(player=p7, answer=a44)
+	v75 = Vote(player=p7, answer=a55)
+	v76 = Vote(player=p7, answer=a66)
+
+	v82 = Vote(player=p8, answer=a22)
+	v83 = Vote(player=p8, answer=a33)
+	v84 = Vote(player=p8, answer=a44)
+	v85 = Vote(player=p8, answer=a55)
+	v86 = Vote(player=p8, answer=a66)
+	v87 = Vote(player=p8, answer=a77)
+
+	db.session.add_all([
+		account, game,
+		p1, p2, p3, p4, p5, p6, p7, p8,
+		pr1, pr2, pr3, pr4, pr5, pr6, pr7, pr8,
+		n1, n2, n3, n4, n5, n6, n7, n8,
+		a11, a12, a22, a23, a33, a34, a44, a45,
+		a55, a56, a66, a67, a77, a78, a88, a81,
+		v13, v14, v15, v16, v17, v18,
+		v21, v24, v24, v26, v27, v28,
+		v31, v32, v35, v36, v37, v37,
+		v41, v42, v43, v46, v47, v48,
+		v51, v52, v53, v54, v57, v58,
+		v61, v62, v63, v64, v65, v68,
+		v71, v72, v73, v74, v75, v76,
+		v82, v83, v84, v85, v86, v87
+		])
 	db.session.commit()
+	close_game(game)
 	print('Test data seeded.')
 
 
@@ -257,12 +357,12 @@ def close_game(game):
 def assign_prompts(players):
 	"""Creates PlayerPrompt nodes and populates their next fields"""
 	nodes = []
-	prompts = sample(Prompt.query.all(), len(players))
+	prompts = random.sample(Prompt.query.all(), len(players))
 	for player in players:
 		prompt = prompts.pop()
 		nodes.append(PlayerPrompt(player_id=player.player_id,
 								  prompt_id=prompt.prompt_id))
-	shuffle(nodes)
+	random.shuffle(nodes)
 	db.session.add_all(nodes)
 	db.session.commit()
 

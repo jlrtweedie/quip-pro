@@ -7,6 +7,7 @@ from model import Account, Game, Player, Prompt, PlayerPrompt, Answer, Vote, \
     connect_to_db, commit_to_db, generate_room_id, assign_prompts, close_game
 from bcrypt import checkpw, hashpw, gensalt
 from datetime import datetime
+from time import sleep
 
 
 async_mode = None
@@ -126,7 +127,6 @@ def socket_handler(action):
 
     elif action['type'] == 'server/ready':
         player_id = action['data']['player_id']
-        # player = Player.query.filter(Player.player_id == player_id).one()
         node = PlayerPrompt.query.filter(
             PlayerPrompt.player_id == player_id).first()
         prompt = node.prompt
@@ -136,19 +136,45 @@ def socket_handler(action):
         player_id = action['data']['player_id']
         prompt_id = action['data']['prompt_id']
         answer_text = action['data']['answer']
+        if answer_text == '':
+            answer_text = 'No Answer'
         player = Player.query.filter(Player.player_id == player_id).one()
-        prompt = Prompt.query.filter(Prompt.prompt_id == prompt_id).one()
-        answer = Answer(player=player, prompt=prompt, text=answer_text)
+        players = [p.player_id for p in player.game.players]
+        node = PlayerPrompt.query.filter(PlayerPrompt.prompt_id == prompt_id,
+            PlayerPrompt.player_id.in_(players)).one()
+        answer = Answer(player=player, node=node, text=answer_text)
         commit_to_db(answer)
-        node = PlayerPrompt.query.filter(
-            PlayerPrompt.player_id == player_id).first()
-        if prompt == node.prompt:
+        if player_id == node.player_id:
             next_node = PlayerPrompt.query.filter(
                 PlayerPrompt.node_id == node.next_id).one()
             next_prompt = next_node.prompt
             answer_phase(next_prompt)
+        elif not all([len(p.answers) - 2 for p in player.game.players]):
+            vote_phase(player.game, node)
         else:
             answer_wait()
+
+    elif action['type'] == 'server/vote':
+        player_id = action['data']['player_id']
+        answer_id = action['data']['answer_id']
+        player = Player.query.filter(Player.player_id == player_id).one()
+        answer = Answer.query.filter(Answer.answer_id == answer_id).one()
+        node = answer.node
+        game = player.game
+        players = [p.player_id for p in game.players]
+        nodes = PlayerPrompt.query.filter(
+            PlayerPrompt.player_id.in_(players)).all()
+        vote = Vote(player=player, answer=answer)
+        commit_to_db(vote)
+        if not all([len(n.answers[0].votes) + len(n.answers[1].votes) - \
+            len(players) + 2 for n in nodes]):
+            vote_display(game, node, last=True)
+        elif not len(node.answers[0].votes) + len(node.answers[1].votes) - \
+            len(players) + 2):
+            vote_display(game, node)
+        else:
+            vote_wait(node)
+
 
 
 
@@ -160,23 +186,55 @@ def error_message(action_type, details):
         {'message': error, 'details': details}
         })
 
+def vote_display(game, node, last=False):
+    prompt = node.prompt.serialize()
+    answers = [answer.serialize() for answer in node.answers]
+    votes = []
+    emit('action', {'type': 'voting', 'data':
+        {'phase': 'tallying', 'waiting': False, 'prompt': prompt,
+         'answers': answers, 'votes': votes, 'scores': None}
+        }, room=game.room_id, broadcast=True)
+    if last:
+        sleep(5)
+        score_phase(game)
+    else:
+        next_node = Node.query.filter(Node.node_id == node.next_id).one()
+        sleep(5)
+        vote_phase(game, next_node)
+
+def vote_wait(node):
+    prompt = node.prompts.serialize()
+    answers = [answer.serialize() for answer in node.answers]
+    emit('action', {'type': 'voting', 'data':
+        {'phase': 'voting', 'waiting': True, 'prompt': prompt,
+         'answers': answers, 'votes': None, 'scores': None}
+        })
+
+def vote_phase(game, node):
+    prompt = node.prompt.serialize()
+    answers = [answer.serialize() for answer in node.answers]
+    emit('action', {'type': 'voting', 'data':
+        {'phase': 'voting', 'waiting': False, 'prompt': prompt,
+         'answers': answers, 'votes': None, 'scores': None}
+        }, room=game.room_id, broadcast=True)
+
 def answer_wait():
     emit('action', {'type': 'answering', 'data':
-        {'phase': 'answering', 'waiting': True,
-        'prompt': None, 'answers': None, 'scores': None}
+        {'phase': 'answering', 'waiting': True, 'prompt': None,
+         'answers': None, 'votes': None, 'scores': None}
         })
 
 def answer_phase(prompt):
     prompt = prompt.serialize()
     emit('action', {'type': 'answering', 'data':
-        {'phase': 'answering', 'waiting': False,
-        'prompt': prompt, 'answers': None, 'scores': None}
+        {'phase': 'answering', 'waiting': False, 'prompt': prompt,
+         'answers': None, 'votes': None, 'scores': None}
         })
 
 def start_game(game):
     emit('action', {'type': 'ready', 'data':
-        {'phase': 'ready', 'waiting': None,
-         'prompt': None, 'answers': None, 'scores': None}
+        {'phase': 'ready', 'waiting': None, 'prompt': None,
+         'answers': None, 'votes': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
 
 def login(account, game=None):
@@ -213,14 +271,15 @@ def delete_game(game):
         {'game': None, 'player': None}
         }, room=game.room_id, broadcast=True)
     emit('action', {'type': 'end_game', 'data':
-        {'phase': None, 'waiting': None,
-         'prompt': None, 'answers': None, 'scores': None}
+        {'phase': None, 'waiting': None, 'prompt': None,
+         'answers': None, 'votes': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
     close_room(game.room_id)
 
 def load_players(game):
+    names = [player.name for player in game.players]
     emit('action', {'type': 'player_names', 'data':
-        {'names': [player.name for player in game.players]}
+        {'names': names}
         }, room=game.room_id, broadcast=True)
 
 

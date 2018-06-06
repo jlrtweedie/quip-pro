@@ -17,13 +17,26 @@ class GameStateContainer extends React.Component {
 		const waiting = stateProps.gameState.waiting;
 		const prompt = stateProps.gameState.prompt;
 		const answers = stateProps.gameState.answers;
+		const votes = stateProps.gameState.votes;
 		const scores = stateProps.gameState.scores;
 
 		// if (answers) {
 		// 	let answerList = answers.map((answer, i) => {
-		// 		return <Vote prompt={prompt} answer={answer} />
+		// 		return (
+		// 			<div>
+		// 				<Vote prompt={prompt} answer={answer} />
+		// 				{ votes !== null ? (
+		// 					votes.map((vote, i) => {
+		// 						return <Tally answer={answer} vote={vote} />
+		// 					})
+		// 				) : (
+		// 					<div></div>
+		// 				) }
+		// 			</div>
+		// 		);
 		// 	});
 		// }
+
 		//
 		// if (scores) {
 		// 	let scoreList = scores.map((score, i) => {
@@ -35,7 +48,6 @@ class GameStateContainer extends React.Component {
 			<div>
 				{	phase === 'answering' ? (
 					<div>
-					{/* <Prompt prompt={prompt} /> */}
 						{ waiting === false ? (
 							<div>
 								<h2>{prompt.text}</h2>
@@ -49,9 +61,9 @@ class GameStateContainer extends React.Component {
 					</div>
 				) : (
 					<div>
-					{ phase === 'voting' ? (
+					{ phase === 'voting' || 'tallying' ? (
 						<div>
-						{/* <Prompt prompt={prompt} /> */}
+							<h2>{prompt.text}</h2>
 							{ waiting === false ? (
 								<div>{ answerList }</div>
 							) : (

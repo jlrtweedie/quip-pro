@@ -18,6 +18,7 @@ const initialState = {
     waiting: null,
     prompt: null,
     answers: null,
+    votes: null,
     scores: null
   }
 }
