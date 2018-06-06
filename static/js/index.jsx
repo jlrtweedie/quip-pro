@@ -11,17 +11,20 @@ import {
 	MessageReducer,
 	LoginReducer,
 	JoinGameReducer,
-	PlayerNameReducer
+	PlayerNameReducer,
+	GameStateReducer
 } from './reducers/socketReducer';
 
 import LoginContainer from './containers/loginContainer.jsx';
 import JoinGameContainer from './containers/joinGameContainer.jsx';
+import GameStateContainer from './containers/gameStateContainer.jsx';
 
 const rootReducer = combineReducers({
 	message: MessageReducer,
 	login: LoginReducer,
 	joinGame: JoinGameReducer,
-	playerNames: PlayerNameReducer
+	playerNames: PlayerNameReducer,
+	gameState: GameStateReducer
 })
 
 let socket = io('http://localhost:5000');
@@ -34,6 +37,7 @@ class App extends React.Component {
 			<div>
         <LoginContainer store={store} />
 				<JoinGameContainer store={store} />
+				<GameStateContainer store={store} />
       </div>
 		);
 	}

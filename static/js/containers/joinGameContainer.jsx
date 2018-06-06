@@ -12,15 +12,22 @@ class JoinGameContainer extends React.Component {
     const game = stateProps.joinGame.game;
     const player = stateProps.joinGame.player;
     const names = stateProps.playerNames.names;
+    const phase = stateProps.gameState.phase;
     return (
       <div>
-        { game === null ? (
-          <JoinGame />
-        ) : (
+        { phase === null ? (
           <div>
-            <LeaveGame game={game} player={player} />
-            <DisplayPlayers names={names} />
+            { game === null ? (
+              <JoinGame />
+            ) : (
+              <div>
+                <LeaveGame game={game} player={player} />
+                <DisplayPlayers names={names} />
+              </div>
+            ) }
           </div>
+        ) : (
+          <div></div>
         ) }
       </div>
     );
@@ -30,7 +37,8 @@ class JoinGameContainer extends React.Component {
 function mapStateToProps(state) {
   return {
     joinGame: state.joinGame,
-    playerNames: state.playerNames
+    playerNames: state.playerNames,
+    gameState: state.gameState
   }
 }
 

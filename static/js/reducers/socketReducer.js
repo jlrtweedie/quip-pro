@@ -12,6 +12,13 @@ const initialState = {
   },
   playerNames: {
     names: null
+  },
+  gameState: {
+    phase: null,
+    waiting: null,
+    prompt: null,
+    answers: null,
+    scores: null
   }
 }
 
@@ -57,6 +64,25 @@ export function PlayerNameReducer(state=initialState.playerNames, action) {
     case 'player_names':
       const playerNames = Object.assign({}, action.data);
       return playerNames;
+    default:
+      return state;
+  }
+}
+
+export function GameStateReducer(state=initialState.gameState, action) {
+  switch(action.type) {
+    case 'ready':
+      const ready = Object.assign({}, action.data);
+      return ready;
+    case 'answering':
+      const answering = Object.assign({}, action.data);
+      return answering;
+    case 'voting':
+      const voting = Object.assign({}, action.data);
+      return voting;
+    case 'scoring':
+      const scoring = Object.assign({}, action.data);
+      return scoring;
     default:
       return state;
   }

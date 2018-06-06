@@ -28,8 +28,10 @@ class Login extends React.Component {
     return (
       <div>
         <h2>Login</h2>
-        Email: <input type="text" onChange={this.handleUserInput} name="email" />&nbsp;
-        Password: <input type="password" onChange={this.handleUserInput} name="password" />&nbsp;
+        Email: <input type="text" onChange={this.handleUserInput}
+                 name="email" maxLength="64" />&nbsp;
+        Password: <input type="password" onChange={this.handleUserInput}
+                    name="password" maxLength="128" />&nbsp;
         <button onClick={this.handleSubmit} name="login">Login</button>&nbsp;
         <button onClick={this.handleSubmit} name="register">Register</button>
       </div>

@@ -1,13 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-class JoinGame extends React.Component {
+class Answer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       data: {
-        room_id: '',
-        name: ''
+        game_id: this.props.game.game_id,
+        player_id: this.props.player.player_id,
+        prompt_id: this.props.prompt.prompt_id,
+        answer: ''
       }
     };
     this.handleUserInput = this.handleUserInput.bind(this);
@@ -27,12 +29,9 @@ class JoinGame extends React.Component {
   render() {
     return (
       <div>
-        <h2>Join Game</h2>
-        Name: <input type="text" onChange={this.handleUserInput}
-                name="name" maxLength="12" />&nbsp;
-        Room ID: <input type="text" onChange={this.handleUserInput}
-                   name="room_id" maxLength="4" />&nbsp;
-        <button onClick={this.handleSubmit} name="join_game">Join Game</button>
+        Answer: <input type="text" onChange={this.handleUserInput}
+                  name="answer" maxLength="24" /> &nbsp;
+        <button onClick={this.handleSubmit} name="answer">Submit</button>
       </div>
     )
   }
@@ -40,8 +39,9 @@ class JoinGame extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    join_game: state.join_game
+    joinGame: state.joinGame,
+    gameState: state.gameState
   }
 }
 
-export default connect(mapStateToProps)(JoinGame);
+export default connect(mapStateToProps)(Answer);

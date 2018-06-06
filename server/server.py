@@ -87,8 +87,7 @@ def socket_handler(action):
         player_id = action['data']['player_id']
         game_id = action['data']['game_id']
         player = Player.query.filter(Player.player_id == player_id).one()
-        game = Game.query.filter(
-            Game.game_id == game_id, Game.finished_at == None).one()
+        game = Game.query.filter(Game.game_id == game_id).one()
         commit_to_db(player, delete=True)
         leave_game(game)
 
@@ -110,18 +109,49 @@ def socket_handler(action):
         account_id = action['data']['account_id']
         game_id = action['data']['game_id']
         account = Account.query.filter(Account.account_id == account_id).one()
-        game = Game.query.filter(
-            Game.game_id == game_id, Game.finished_at == None).one()
+        game = Game.query.filter(Game.game_id == game_id).one()
         end_game(game)
         delete_game(game)
         login(account)
 
     elif action['type'] == 'server/start_game':
         game_id = action['data']['game_id']
-        game = Game.query.filter(
-            Game.game_id == game_id, Game.finished_at == None).one()
-        assign_prompts(game.players)
-        start_game(game)
+        game = Game.query.filter(Game.game_id == game_id).one()
+        if len(game.players) >= 3:
+            assign_prompts(game.players)
+            start_game(game)
+        else:
+            error_message(action['type'],
+                'There must be at least 3 players in game in order to play')
+
+    elif action['type'] == 'server/ready':
+        player_id = action['data']['player']['player_id']
+        # player = Player.query.filter(Player.player_id == player_id).one()
+        node = PlayerPrompt.query.filter(
+            PlayerPrompt.player_id == player_id).first()
+        prompt = node.prompt
+        answer_phase(prompt)
+
+    elif action['type'] == 'server/answer':
+        player_id = action['data']['player_id']
+        prompt_id = action['data']['prompt_id']
+        answer_text = action['data']['answer']
+        player = Player.query.filter(Player.player_id == player_id).one()
+        prompt = Prompt.query.filter(Prompt.prompt_id == prompt_id).one()
+        answer = Answer(player=player, prompt=prompt, text=answer_text)
+        commit_to_db(answer)
+        node = PlayerPrompt.query.filter(
+            PlayerPrompt.player_id == player_id).first()
+        if prompt == node.prompt:
+            next_node = PlayerPrompt.query.filter(
+                PlayerPrompt.node_id == node.next_id).one()
+            next_prompt = next_node.prompt
+            answer_phase(next_prompt)
+        else:
+            answer_wait()
+
+
+
 
 
 def error_message(action_type, details):
@@ -130,11 +160,31 @@ def error_message(action_type, details):
         {'message': error, 'details': details}
         })
 
+def answer_wait():
+    emit('action', {'type': 'message', 'data':
+        {'message': '2nd answer received', 'details': None}
+        })
+    emit('action', {'type': 'answering', 'data':
+        {'phase': 'answering', 'waiting': True,
+        'prompt': None, 'answers': None, 'scores': None}
+        })
+
+def answer_phase(prompt):
+    prompt = prompt.serialize()
+    emit('action', {'type': 'answering', 'data':
+        {'phase': 'answering', 'waiting': False,
+        'prompt': prompt, 'answers': None, 'scores': None}
+        })
+
 def start_game(game):
     emit('action', {'type': 'message', 'data':
         {'message': 'Starting game {}'.format(game.room_id), 'details': None}
         }, room=game.room_id, broadcast=True)
-        
+    emit('action', {'type': 'answering', 'data':
+        {'phase': 'ready', 'waiting': None,
+         'prompt': None, 'answers': None, 'scores': None}
+        }, room=game.room_id, broadcast=True)
+
 def login(account, game=None):
     account = account.serialize()
     if game:

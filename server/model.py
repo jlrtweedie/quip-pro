@@ -119,6 +119,7 @@ class PlayerPrompt(db.Model):
 	next_id = db.Column(db.Integer, nullable=True)
 
 	player = db.relationship('Player', backref=db.backref('playerprompts'))
+	prompt = db.relationship('Prompt')
 
 	def __repr__(self):
 		return '<Node {}, Player {}, Prompt {}, Next {}>'.format(
@@ -144,7 +145,7 @@ class Answer(db.Model):
 	text = db.Column(db.String(24), nullable=True)
 
 	player = db.relationship('Player', backref=db.backref('answers'))
-	prompt = db.relationship('Prompt', backref=db.backref('answers'))
+	prompt = db.relationship('Prompt')
 
 	def __repr__(self):
 		return '<Answer {}: {}; Player {}, Prompt {}>'.format(
@@ -206,10 +207,10 @@ def example_data():
 	account = Account(email='test@test.com', password=password.decode('utf-8'))
 	game = Game(account=account, room_id='ABCD')
 
-	p1 = Player(game=game, name='Player 1')
-	p2 = Player(game=game, name='Player 2')
-	p3 = Player(game=game, name='Player 3')
-	p4 = Player(game=game, name='Player 4')
+	# p1 = Player(game=game, name='Player 1')
+	# p2 = Player(game=game, name='Player 2')
+	# p3 = Player(game=game, name='Player 3')
+	# p4 = Player(game=game, name='Player 4')
 
 	pr1 = Prompt(text='Prompt 1')
 	pr2 = Prompt(text='Prompt 2')
@@ -220,7 +221,7 @@ def example_data():
 	pr7 = Prompt(text='Prompt 7')
 	pr8 = Prompt(text='Prompt 8')
 
-	db.session.add_all([account, game, p1, p2, p3, p4,
+	db.session.add_all([account, game, # p1, p2, p3, p4,
 		pr1, pr2, pr3, pr4, pr5, pr6, pr7, pr8])
 	db.session.commit()
 	print('Test data seeded.')
@@ -249,8 +250,8 @@ def generate_room_id():
 def end_game(game):
 	"""Ends a game by giving it a finish time and counts connected players"""
 	game.finished_at = datetime.now()
-    game.num_players = len(game.players)
-    commit_to_db()
+	game.num_players = len(game.players)
+	commit_to_db()
 
 
 def assign_prompts(players):
@@ -266,7 +267,6 @@ def assign_prompts(players):
 	db.session.commit()
 
 	for i, node in enumerate(nodes):
-		print(node.node_id)
 		node.next_id = nodes[i-1].node_id
 	db.session.commit()
 
