@@ -33,6 +33,7 @@ class Answer extends React.Component {
   render() {
     return (
       <div>
+        <h2>{this.props.prompt.text}</h2>
         Answer: <input type="text" onChange={this.handleUserInput}
                   name="answer" maxLength="24" /> &nbsp;
         <button onClick={this.handleSubmit} name="answer">Submit</button>

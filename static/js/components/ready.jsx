@@ -24,7 +24,7 @@ class Ready extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    // joinGame: state.joinGame,
+    joinGame: state.joinGame,
     gameState: state.gameState
   }
 }

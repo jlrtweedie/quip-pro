@@ -154,7 +154,7 @@ class Answer(db.Model):
 		return {
 			'answer_id': self.answer_id,
 			'player_id': self.player_id,
-			'prompt_id': self.prompt_id,
+			'prompt_id': self.node.prompt_id,
 			'text': self.text
 		}
 

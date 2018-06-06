@@ -18,10 +18,13 @@ class JoinGameContainer extends React.Component {
         { phase === null ? (
           <div>
             { game === null ? (
-              <JoinGame />
+              <div>
+                <JoinGame />
+              </div>
             ) : (
               <div>
                 <LeaveGame game={game} player={player} />
+                <h2>Players in Game:</h2>
                 <DisplayPlayers names={names} />
               </div>
             ) }

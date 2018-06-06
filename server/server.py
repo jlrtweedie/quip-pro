@@ -149,7 +149,7 @@ def socket_handler(action):
                 PlayerPrompt.node_id == node.next_id).one()
             next_prompt = next_node.prompt
             answer_phase(next_prompt)
-        elif not all([len(p.answers) - 2 for p in player.game.players]):
+        elif sum([len(p.answers) - 2 for p in player.game.players]) == 0:
             vote_phase(player.game, node)
         else:
             answer_wait()
@@ -169,7 +169,7 @@ def socket_handler(action):
         if not all([len(n.answers[0].votes) + len(n.answers[1].votes) - \
             len(players) + 2 for n in nodes]):
             vote_display(game, node, last=True)
-        elif not len(node.answers[0].votes) + len(node.answers[1].votes) - \
+        elif not (len(node.answers[0].votes) + len(node.answers[1].votes) - \
             len(players) + 2):
             vote_display(game, node)
         else:
@@ -223,6 +223,9 @@ def answer_wait():
         {'phase': 'answering', 'waiting': True, 'prompt': None,
          'answers': None, 'votes': None, 'scores': None}
         })
+    emit('action', {'type': 'message', 'data':
+        {'message': 'Answer received', 'details': None}
+        })
 
 def answer_phase(prompt):
     prompt = prompt.serialize()
@@ -230,12 +233,18 @@ def answer_phase(prompt):
         {'phase': 'answering', 'waiting': False, 'prompt': prompt,
          'answers': None, 'votes': None, 'scores': None}
         })
+    emit('action', {'type': 'message', 'data':
+        {'message': 'Prompt given', 'details': None}
+        })
 
 def start_game(game):
     emit('action', {'type': 'ready', 'data':
         {'phase': 'ready', 'waiting': None, 'prompt': None,
          'answers': None, 'votes': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
+    emit('action', {'type': 'message', 'data':
+        {'message': 'Starting game', 'details': None}
+        })
 
 def login(account, game=None):
     account = account.serialize()

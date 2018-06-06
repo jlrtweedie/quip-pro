@@ -9,8 +9,6 @@ class DisplayPlayers extends React.Component {
 
 		return (
 			<div>
-				Players in game:
-				<br />
 				<ul>{ playerList }</ul>
 			</div>
 		)
