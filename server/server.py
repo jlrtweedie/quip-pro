@@ -203,7 +203,7 @@ def vote_display(game, node, last=False):
         vote_phase(game, next_node)
 
 def vote_wait(node):
-    prompt = node.prompts.serialize()
+    prompt = node.prompt.serialize()
     answers = [answer.serialize() for answer in node.answers]
     emit('action', {'type': 'voting', 'data':
         {'phase': 'voting', 'waiting': True, 'prompt': prompt,
@@ -217,18 +217,12 @@ def vote_phase(game, node):
         {'phase': 'voting', 'waiting': False, 'prompt': prompt,
          'answers': answers, 'votes': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
-    emit('action', {'type': 'message', 'data':
-        {'message': 'Answers', 'details': answers}
-        }, room=game.room_id, broadcast=True)
 
 def answer_wait():
     emit('action', {'type': 'answering', 'data':
         {'phase': 'answering', 'waiting': True, 'prompt': None,
          'answers': None, 'votes': None, 'scores': None}
         })
-    # emit('action', {'type': 'message', 'data':
-    #     {'message': 'Answer received', 'details': None}
-    #     })
 
 def answer_phase(prompt):
     prompt = prompt.serialize()
@@ -236,18 +230,12 @@ def answer_phase(prompt):
         {'phase': 'answering', 'waiting': False, 'prompt': prompt,
          'answers': None, 'votes': None, 'scores': None}
         })
-    # emit('action', {'type': 'message', 'data':
-    #     {'message': 'Prompt given', 'details': None}
-    #     })
 
 def start_game(game):
     emit('action', {'type': 'ready', 'data':
         {'phase': 'ready', 'waiting': None, 'prompt': None,
          'answers': None, 'votes': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
-    # emit('action', {'type': 'message', 'data':
-    #     {'message': 'Starting game', 'details': None}
-    #     })
 
 def login(account, game=None):
     account = account.serialize()

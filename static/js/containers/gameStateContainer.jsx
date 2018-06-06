@@ -20,28 +20,6 @@ class GameStateContainer extends React.Component {
 		const votes = stateProps.gameState.votes;
 		const scores = stateProps.gameState.scores;
 
-		if (answers !== null) {
-			let answerList = answers.map((answer, i) => {
-				return (
-					<div>
-						<Vote player={player} answer={answer}
-		         phase={phase} waiting={waiting} />
-						{ votes !== null ? (
-							votes.map((vote, i) => {
-								return <DisplayPlayers players={vote} />
-							})
-						) : (
-							<div></div>
-						) }
-					</div>
-				);
-			});
-		} else {
-			let answerList = null;
-			// console.log(answerList);
-		}
-
-
 		//
 		// if (scores) {
 		// 	let scoreList = scores.map((score, i) => {
@@ -74,7 +52,7 @@ class GameStateContainer extends React.Component {
 								{ phase === 'voting' ? (
 									<div>
 										{ answers.map((answer, i) =>
-											<Vote player={player} answer={answer}
+											<Vote key={i} player={player} answer={answer}
 									    	phase={phase} waiting={waiting} />
 										) }
 									</div>
@@ -88,50 +66,6 @@ class GameStateContainer extends React.Component {
 				) }
 			</div>
 		)
-
-		// return (
-		// 	<div>
-		// 		{	phase === 'answering' ? (
-		// 			<div>
-		// 				{ waiting === false ? (
-		// 					<div>
-		// 						{/* <h2>{prompt.text}</h2> */}
-		// 						<Answer player={player} prompt={prompt} />
-		// 					</div>
-		// 				) : (
-		// 					<div>
-		// 						<h2>Waiting for other players...</h2>
-		// 					</div>
-		// 				) }
-		// 			</div>
-		// 		) : (
-		// 			<div>
-		// 			{ phase === 'voting' || 'tallying' ? (
-		// 				<div>
-		// 					{ waiting === false ? (
-		// 						<div>
-		// 							<h2>{prompt.text}</h2>
-		// 							{ answerList }
-		// 						</div>
-		// 					) : (
-		// 						<div></div>
-		// 					) }
-		// 				</div>
-		// 			) : (
-		// 				<div>
-		// 					{ phase === 'ready' ? (
-		// 						<Ready player={player} phase={phase} />
-		// 					) : (
-		// 						<div>
-		// 							{/* <Ready player={player} phase={phase} /> */}
-		// 						</div>
-		// 					) }
-		// 				</div>
-		// 			) }
-		// 			</div>
-		// 		) }
-		// 	</div>
-		// )
 	}
 }
 
