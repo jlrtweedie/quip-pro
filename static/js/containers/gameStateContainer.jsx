@@ -36,11 +36,15 @@ class GameStateContainer extends React.Component {
 				{	phase === 'answering' ? (
 					<div>
 					{/* <Prompt prompt={prompt} /> */}
-						<h2>{prompt.text}</h2>
 						{ waiting === false ? (
-							<Answer game={game} player={player} prompt={prompt} />
+							<div>
+								<h2>{prompt.text}</h2>
+								<Answer player={player} prompt={prompt} />
+							</div>
 						) : (
-							<div></div>
+							<div>
+								<h2>Waiting for other players...</h2>
+							</div>
 						) }
 					</div>
 				) : (
