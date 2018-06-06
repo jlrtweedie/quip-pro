@@ -6,9 +6,6 @@ class Answer extends React.Component {
     super(props);
     this.state = {
       data: {
-        game_id: this.props.game.game_id,
-        player_id: this.props.player.player_id,
-        prompt_id: this.props.prompt.prompt_id,
         answer: ''
       }
     };
@@ -23,7 +20,14 @@ class Answer extends React.Component {
   }
 
   handleSubmit(e) {
-    this.props.dispatch({type:'server/'.concat(e.target.name), data: this.state.data});
+    this.props.dispatch({type:'server/'.concat(e.target.name), data:
+      {player_id: this.props.player.player_id,
+       prompt_id: this.props.prompt.prompt_id,
+       answer: this.state.data.answer}
+     });
+     let data = Object.assign({}, this.state.data);
+     data[e.target.name] = '';
+     this.setState({data});
   }
 
   render() {

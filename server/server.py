@@ -182,7 +182,7 @@ def start_game(game):
     emit('action', {'type': 'message', 'data':
         {'message': 'Starting game {}'.format(game.room_id), 'details': None}
         }, room=game.room_id, broadcast=True)
-    emit('action', {'type': 'answering', 'data':
+    emit('action', {'type': 'ready', 'data':
         {'phase': 'ready', 'waiting': None,
          'prompt': None, 'answers': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
