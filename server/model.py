@@ -247,7 +247,7 @@ def generate_room_id():
 			return room_id
 
 
-def end_game(game):
+def close_game(game):
 	"""Ends a game by giving it a finish time and counts connected players"""
 	game.finished_at = datetime.now()
 	game.num_players = len(game.players)
@@ -257,12 +257,12 @@ def end_game(game):
 def assign_prompts(players):
 	"""Creates PlayerPrompt nodes and populates their next fields"""
 	nodes = []
-	shuffle(players)
 	prompts = sample(Prompt.query.all(), len(players))
 	for player in players:
 		prompt = prompts.pop()
 		nodes.append(PlayerPrompt(player_id=player.player_id,
 								  prompt_id=prompt.prompt_id))
+	shuffle(nodes)
 	db.session.add_all(nodes)
 	db.session.commit()
 

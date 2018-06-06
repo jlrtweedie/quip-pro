@@ -83,6 +83,9 @@ export function GameStateReducer(state=initialState.gameState, action) {
     case 'scoring':
       const scoring = Object.assign({}, action.data);
       return scoring;
+    case 'end_game':
+      const endGame = Object.assign({}, action.data);
+      return endGame;
     default:
       return state;
   }

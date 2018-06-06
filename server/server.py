@@ -4,7 +4,7 @@ from flask import  Flask, render_template, session, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from model import Account, Game, Player, Prompt, PlayerPrompt, Answer, Vote, \
-    connect_to_db, commit_to_db, generate_room_id, assign_prompts, end_game
+    connect_to_db, commit_to_db, generate_room_id, assign_prompts, close_game
 from bcrypt import checkpw, hashpw, gensalt
 from datetime import datetime
 
@@ -110,7 +110,7 @@ def socket_handler(action):
         game_id = action['data']['game_id']
         account = Account.query.filter(Account.account_id == account_id).one()
         game = Game.query.filter(Game.game_id == game_id).one()
-        end_game(game)
+        close_game(game)
         delete_game(game)
         login(account)
 
@@ -125,7 +125,7 @@ def socket_handler(action):
                 'There must be at least 3 players in game in order to play')
 
     elif action['type'] == 'server/ready':
-        player_id = action['data']['player']['player_id']
+        player_id = action['data']['player_id']
         # player = Player.query.filter(Player.player_id == player_id).one()
         node = PlayerPrompt.query.filter(
             PlayerPrompt.player_id == player_id).first()
@@ -174,9 +174,6 @@ def answer_phase(prompt):
         })
 
 def start_game(game):
-    emit('action', {'type': 'message', 'data':
-        {'message': 'Starting game {}'.format(game.room_id), 'details': None}
-        }, room=game.room_id, broadcast=True)
     emit('action', {'type': 'ready', 'data':
         {'phase': 'ready', 'waiting': None,
          'prompt': None, 'answers': None, 'scores': None}
@@ -214,6 +211,10 @@ def leave_game(game):
 def delete_game(game):
     emit('action', {'type': 'leave_game', 'data':
         {'game': None, 'player': None}
+        }, room=game.room_id, broadcast=True)
+    emit('action', {'type': 'end_game', 'data':
+        {'phase': None, 'waiting': None,
+         'prompt': None, 'answers': None, 'scores': None}
         }, room=game.room_id, broadcast=True)
     close_room(game.room_id)
 

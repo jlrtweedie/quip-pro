@@ -11,7 +11,7 @@ class Ready extends React.Component {
   sendReady() {
     if (this.props.phase === 'ready') {
       this.props.dispatch({type: 'server/ready', data:
-        {player: this.props.player}
+        {player_id: this.props.player.player_id}
       });
     }
   }
