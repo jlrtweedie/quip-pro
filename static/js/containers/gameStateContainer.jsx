@@ -51,6 +51,7 @@ class GameStateContainer extends React.Component {
 							<div>
 								{ phase === 'voting' ? (
 									<div>
+									<h2>{prompt.text}</h2>
 										{ answers.map((answer, i) =>
 											<Vote key={i} player={player} answer={answer} waiting={waiting}
 												answerers={answers.map((answer, i) => answer['player_id'])} />
@@ -60,6 +61,7 @@ class GameStateContainer extends React.Component {
 									<div>
 										{ phase === 'tallying' ? (
 											<div>
+											<h2>{prompt.text}</h2>
 												{ answers.map((answer, i) => {
 													console.log(answer.name);
 													return (
