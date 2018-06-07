@@ -1,10 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Dropdown, DropdownToggle, DropdownMenu, Form, FormGroup, Button, Label } from 'reactstrap';
 
 class Logout extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      dropdownOpen: false
+    };
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
   }
 
   handleSubmit(e) {
@@ -13,10 +24,19 @@ class Logout extends React.Component {
 
   render() {
     return (
-      <div>
-        <h2>Logged in as: {this.props.account.email}</h2>
-        <button onClick={this.handleSubmit} name="logout">Logout</button>
-      </div>
+      <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        <DropdownToggle caret>
+          Logout
+        </DropdownToggle>
+      <DropdownMenu>
+      <Form>
+        <Label>Logged in as: {this.props.account.email}</Label>
+        <FormGroup>
+          <Button color="primary" onClick={this.handleSubmit} name="logout">Logout</Button>
+        </FormGroup>
+      </Form>
+      </DropdownMenu>
+      </Dropdown>
     )
   }
 }
