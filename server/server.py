@@ -166,11 +166,11 @@ def socket_handler(action):
             PlayerPrompt.player_id.in_(players)).all()
         vote = Vote(player=player, answer=answer)
         commit_to_db(vote)
-        if not all([len(n.answers[0].votes) + len(n.answers[1].votes) - \
-            len(players) + 2 for n in nodes]):
+        if sum([len(n.answers[0].votes) + len(n.answers[1].votes) - \
+            len(players) + 2 for n in nodes]) == 0:
             vote_display(game, node, last=True)
-        elif not (len(node.answers[0].votes) + len(node.answers[1].votes) - \
-            len(players) + 2):
+        elif (len(node.answers[0].votes) + len(node.answers[1].votes) - \
+            len(players) + 2) == 0:
             vote_display(game, node)
         else:
             vote_wait(node)
@@ -198,9 +198,13 @@ def vote_display(game, node, last=False):
         sleep(5)
         score_phase(game)
     else:
-        next_node = Node.query.filter(Node.node_id == node.next_id).one()
+        next_node = PlayerPrompt.query.filter(
+            PlayerPrompt.node_id == node.next_id).one()
         sleep(5)
         vote_phase(game, next_node)
+
+def score_phase(game):
+    pass
 
 def vote_wait(node):
     prompt = node.prompt.serialize()

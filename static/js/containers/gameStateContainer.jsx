@@ -52,8 +52,8 @@ class GameStateContainer extends React.Component {
 								{ phase === 'voting' ? (
 									<div>
 										{ answers.map((answer, i) =>
-											<Vote key={i} player={player} answer={answer}
-									    	phase={phase} waiting={waiting} />
+											<Vote key={i} player={player} answer={answer} waiting={waiting}
+												answerers={answers.map((answer, i) => answer['player_id'])} />
 										) }
 									</div>
 								) : (
