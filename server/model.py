@@ -200,8 +200,6 @@ def connect_to_db(app, db_uri='postgresql:///quippro'):
 def example_data():
 	"""Seeds test data."""
 
-	db.create_all()
-
 	password = hashpw('password'.encode('utf-8'), gensalt())
 
 	account = Account(email='test@test.com', password=password.decode('utf-8'))
@@ -352,7 +350,7 @@ def close_game(game):
 	"""Ends a game by giving it a finish time and counts connected players"""
 	game.finished_at = datetime.now()
 	game.num_players = len(game.players)
-	commit_to_db()
+	db.session.commit()
 
 
 def assign_prompts(players):
@@ -400,4 +398,6 @@ if __name__ == '__main__':
 
 	connect_to_db(app)
 	if sys.argv[-1] == 'rebuild':
+		db.create_all()
+	if sys.argv[-2] == 'seed':
 		example_data()

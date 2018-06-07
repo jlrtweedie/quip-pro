@@ -2,6 +2,3 @@ env/
 node_modules/
 server/__pycache__/
 static/dist/bundle.js
-
-secrets.sh
-*.pyc
