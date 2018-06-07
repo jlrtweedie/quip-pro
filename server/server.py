@@ -189,19 +189,20 @@ def error_message(action_type, details):
 def vote_display(game, node, last=False):
     prompt = node.prompt.serialize()
     answers = [answer.serialize() for answer in node.answers]
-    votes = []
+    votes = [list(map(lambda x: x.player.name,
+        answer.votes)) for answer in node.answers]
     emit('action', {'type': 'voting', 'data':
-        {'phase': 'tallying', 'waiting': False, 'prompt': prompt,
+        {'phase': 'tallying', 'waiting': True, 'prompt': prompt,
          'answers': answers, 'votes': votes, 'scores': None}
         }, room=game.room_id, broadcast=True)
-    if last:
-        sleep(5)
-        score_phase(game)
-    else:
-        next_node = PlayerPrompt.query.filter(
-            PlayerPrompt.node_id == node.next_id).one()
-        sleep(5)
-        vote_phase(game, next_node)
+    # if last:
+        # sleep(5)
+        # score_phase(game)
+    # else:
+        # next_node = PlayerPrompt.query.filter(
+            # PlayerPrompt.node_id == node.next_id).one()
+        # sleep(5)
+        # vote_phase(game, next_node)
 
 def score_phase(game):
     pass

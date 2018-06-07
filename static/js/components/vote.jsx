@@ -8,7 +8,6 @@ class Vote extends React.Component {
   }
 
   handleSubmit(e) {
-    console.log(this.props.answerers.includes(this.props.player.player_id));
     if (this.props.waiting === false && !this.props.answerers.includes(
         this.props.player.player_id)) {
       this.props.dispatch({type:'server/'.concat(e.target.name), data:

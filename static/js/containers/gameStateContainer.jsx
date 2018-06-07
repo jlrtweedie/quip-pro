@@ -2,10 +2,10 @@ import React from 'react';
 import { getState } from 'redux';
 import { connect } from 'react-redux';
 
-import DisplayPlayers from '../components/displayPlayers.jsx';
 import Ready from '../components/ready.jsx';
 import Answer from '../components/answer.jsx';
 import Vote from '../components/vote.jsx';
+import DisplayPlayers from '../components/displayPlayers.jsx';
 // import Scoreboard from '../components/scoreboard.jsx';
 
 class GameStateContainer extends React.Component {
@@ -58,6 +58,23 @@ class GameStateContainer extends React.Component {
 									</div>
 								) : (
 									<div>
+										{ phase === 'tallying' ? (
+											<div>
+												{ answers.map((answer, i) => {
+													console.log(answer.name);
+													return (
+														<div>
+															<h2 key={i+4}>{answer.name}</h2>
+															<Vote key={i} player={player} answer={answer} waiting={waiting}
+																answerers={answers.map((answer, i) => answer['player_id'])} />
+															<DisplayPlayers key={i+2} names={votes[i]} />
+														</div>
+													) }
+												) }
+											</div>
+										) : (
+											<div></div>
+										) }
 									</div>
 								) }
 							</div>
