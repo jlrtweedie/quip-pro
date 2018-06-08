@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 class CreateGame extends React.Component {
 	constructor(props) {
@@ -14,8 +15,7 @@ handleSubmit(e) {
 render() {
 	return (
 		<div>
-			<h2>Create Game</h2>
-			<button onClick={this.handleSubmit} name="create_game">Create Game</button>
+			<Button color="info" onClick={this.handleSubmit} name="create_game">Create Game</Button>
 		</div>
 		)
 	}

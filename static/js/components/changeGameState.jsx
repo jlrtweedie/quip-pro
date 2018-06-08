@@ -1,10 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, Button } from 'reactstrap';
 
 class ChangeGameState extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      dropdownOpen: false
+    }
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
   }
 
   handleSubmit(e) {
@@ -16,9 +27,19 @@ class ChangeGameState extends React.Component {
   render() {
     return (
       <div>
-        <h2>Start or End Game {this.props.game.room_id}</h2>
-        <button onClick={this.handleSubmit} name="start_game">Start Game</button> &nbsp;
-        <button onClick={this.handleSubmit} name="delete_game">End Game</button>
+        <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+          <DropdownToggle caret color="info">
+            Game {this.props.game.room_id}
+          </DropdownToggle>
+          <DropdownMenu>
+            {/*<DropdownItem>*/}
+              <DropdownItem onClick={this.handleSubmit} name="start_game">Start Game</DropdownItem>
+            {/*</DropdownItem>*/}
+            {/*<DropdownItem>*/}
+              <DropdownItem onClick={this.handleSubmit} name="delete_game">End Game</DropdownItem>
+            {/*</DropdownItem>*/}
+          </DropdownMenu>
+        </ButtonDropdown>
       </div>
     )
   }

@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Dropdown, DropdownToggle, DropdownMenu, Form, FormGroup, Button, Label } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 
 class Logout extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dropdownOpen: false
+      modal: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.toggle = this.toggle.bind(this);
@@ -14,7 +14,7 @@ class Logout extends React.Component {
 
   toggle() {
     this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
+      modal: !prevState.modal
     }));
   }
 
@@ -24,19 +24,18 @@ class Logout extends React.Component {
 
   render() {
     return (
-      <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-        <DropdownToggle caret>
-          Logout
-        </DropdownToggle>
-      <DropdownMenu>
-      <Form>
-        <Label>Logged in as: {this.props.account.email}</Label>
-        <FormGroup>
-          <Button color="primary" onClick={this.handleSubmit} name="logout">Logout</Button>
-        </FormGroup>
-      </Form>
-      </DropdownMenu>
-      </Dropdown>
+      <div>
+        <Button color="primary" onClick={this.toggle}>Logout</Button>
+        <Modal isOpen={this.state.modal} toggle={this.toggle}>
+          <ModalHeader toggle={this.toggle}>Logout</ModalHeader>
+          <ModalBody>
+            <h3>Logged in as: {this.props.account.email}</h3>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.handleSubmit} name="logout">Logout</Button>
+          </ModalFooter>
+        </Modal>
+      </div>
     )
   }
 }
