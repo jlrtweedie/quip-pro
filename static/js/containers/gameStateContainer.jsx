@@ -63,13 +63,12 @@ class GameStateContainer extends React.Component {
 											<div>
 											<h2>{prompt.text}</h2>
 												{ answers.map((answer, i) => {
-													console.log(answer.name);
 													return (
-														<div>
-															<h2 key={i+4}>{answer.name}</h2>
-															<Vote key={i} player={player} answer={answer} waiting={waiting}
+														<div key={i}>
+															<h2 key={i+2}>{answer.name}</h2>
+															<Vote key={i+4} player={player} answer={answer} waiting={waiting}
 																answerers={answers.map((answer, i) => answer['player_id'])} />
-															<DisplayPlayers key={i+2} names={votes[i]} />
+															<DisplayPlayers key={i+6} names={votes[i]} />
 														</div>
 													) }
 												) }
