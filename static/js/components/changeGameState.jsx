@@ -27,17 +27,13 @@ class ChangeGameState extends React.Component {
   render() {
     return (
       <div>
-        <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle} disabled >
           <DropdownToggle caret color="info">
             Game {this.props.game.room_id}
           </DropdownToggle>
           <DropdownMenu>
-            {/*<DropdownItem>*/}
-              <DropdownItem onClick={this.handleSubmit} name="start_game">Start Game</DropdownItem>
-            {/*</DropdownItem>*/}
-            {/*<DropdownItem>*/}
-              <DropdownItem onClick={this.handleSubmit} name="delete_game">End Game</DropdownItem>
-            {/*</DropdownItem>*/}
+            <DropdownItem onClick={this.handleSubmit} name="start_game">Start Game</DropdownItem>
+            <DropdownItem onClick={this.handleSubmit} name="delete_game">End Game</DropdownItem>
           </DropdownMenu>
         </ButtonDropdown>
       </div>

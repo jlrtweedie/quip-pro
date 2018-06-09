@@ -31,41 +31,31 @@ class LoginContainer extends React.Component {
       <div>
         <Navbar color="light" light expand="md">
         	<NavbarBrand>Quip Pro!</NavbarBrand>
-        	{/*<NavbarToggler onClick={this.toggle} />*/}
-        	{/*<Collapse isOpen={this.state.isOpen} navbar>*/}
-        		<Nav className="ml-auto" navbar>
-				  { account === null ? (
-				  	
-				  	<NavItem>
-				  	<Login />
-				  	</NavItem>
-				  	
-				  ) : (
-				  		<div>
-				  		<NavItem>
-				  		<Logout account={account} />
-				  		</NavItem>
-				  		
-							{ game === null ? (
-								
-								<NavItem>
-								<CreateGame account={account} />
+        	<NavbarToggler onClick={this.toggle} />
+        	<Collapse isOpen={this.state.isOpen} navbar>
+				  	{ account === null ? (
+        			<Nav className="ml-auto" navbar >
+        				<NavItem>
+				  				<Login />
+				  			</NavItem>
+				  		</Nav>
+				  	) : (
+				  		<Nav className="ml-auto" navbar >
+				  			<NavItem>
+								{ game === null ? (
+									<CreateGame account={account} />
+								) : (
+									<ChangeGameState account={account} game={game} />
+								) }
 								</NavItem>
-								
-							) : (
-								
-								<NavItem>
-								<ChangeGameState account={account} game={game} />
-								</NavItem>
-								
-							) }
-							</div>
-				  ) }
-				  </Nav>
-				  {/*</Collapse>*/}
-
+				  			<NavItem>
+				  				<Logout account={account} />
+				  			</NavItem>
+				  		</Nav>
+				  	) }
+				  </Collapse>
 				</Navbar>
-        </div>
+			</div>
 		);
 	}
 }

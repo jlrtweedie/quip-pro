@@ -43,6 +43,7 @@ class Game(db.Model):
 	game_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	account_id = db.Column(db.Integer, db.ForeignKey('accounts.account_id'))
 	room_id = db.Column(db.String(4))
+	in_progress = db.Column(db.Boolean, default=False)
 	started_at = db.Column(db.DateTime, default=datetime.now())
 	finished_at = db.Column(db.DateTime, nullable=True)
 	num_players = db.Column(db.Integer, nullable=True)
@@ -345,11 +346,17 @@ def generate_room_id():
 								 Game.finished_at == None).first():
 			return room_id
 
+def begin_game(game):
+	"""Marks game as in progress and counts connected players"""
+	game.in_progress = True
+	game.num_players = len(game.players)
+	db.session.commit()
+
 
 def close_game(game):
 	"""Ends a game by giving it a finish time and counts connected players"""
+	game.in_progress = False
 	game.finished_at = datetime.now()
-	game.num_players = len(game.players)
 	db.session.commit()
 
 

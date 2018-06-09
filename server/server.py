@@ -69,7 +69,7 @@ def socket_handler(action):
         game = Game.query.filter(
             Game.room_id == room_id,
             Game.finished_at == None).first()
-        if game:
+        if game and not game.in_progress:
             player = Player.query.filter(
                 Player.game_id == game.game_id,
                 Player.name == name).first()
@@ -81,6 +81,8 @@ def socket_handler(action):
                 error_message(action['type'], 'Game is full')
             else:
                 error_message(action['type'], 'Duplicate name')
+        elif game and game.in_progress:
+            error_message(action['type'], 'Game already in progress')
         else:
             error_message(action['type'], 'Invalid room')
 
@@ -118,9 +120,12 @@ def socket_handler(action):
     elif action['type'] == 'server/start_game':
         game_id = action['data']['game_id']
         game = Game.query.filter(Game.game_id == game_id).one()
-        if len(game.players) >= 3:
+        if len(game.players) >= 3 and not game.in_progress:
             assign_prompts(game.players)
+            begin_game(game)
             start_game(game)
+        elif game.in_progress:
+            error_message(action['type'], 'Game already in progress')
         else:
             error_message(action['type'],
                 'There must be at least 3 players in game in order to play')
