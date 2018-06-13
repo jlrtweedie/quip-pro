@@ -406,5 +406,6 @@ if __name__ == '__main__':
 	connect_to_db(app)
 	if sys.argv[-1] == 'rebuild':
 		db.create_all()
-	if sys.argv[-2] == 'seed':
+	elif sys.argv[-1] == 'seed':
+		db.create_all()
 		example_data()
