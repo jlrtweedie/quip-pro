@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 class LeaveGame extends React.Component {
   constructor(props) {
@@ -15,8 +16,7 @@ class LeaveGame extends React.Component {
   render() {
     return (
       <div>
-        <h2>Joined game {this.props.game.room_id} as {this.props.player.name}</h2>
-        <button onClick={this.handleSubmit} name="leave_game">Leave Game</button>
+        <Button color="danger" onClick={this.handleSubmit} name="leave_game">Leave Game</Button>
       </div>
     )
   }

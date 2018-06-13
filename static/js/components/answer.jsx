@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Form, FormGroup, Input, Button } from 'reactstrap';
 
 class Answer extends React.Component {
   constructor(props) {
@@ -33,10 +34,14 @@ class Answer extends React.Component {
   render() {
     return (
       <div>
-        <h2>{this.props.prompt.text}</h2>
-        Answer: <input type="text" onChange={this.handleUserInput}
-                  name="answer" maxLength="24" /> &nbsp;
-        <button onClick={this.handleSubmit} name="answer">Submit</button>
+        <Form>
+          <FormGroup>
+            <Input type="text" onChange={this.handleUserInput}
+              placeholder="answer" name="answer" maxLength="24" /> &nbsp;
+            <br />
+            <Button color="primary" onClick={this.handleSubmit} name="answer">Submit</Button>
+          </FormGroup>
+        </Form>
       </div>
     )
   }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { getState } from 'redux';
 import { connect } from 'react-redux';
+// import { Jumbotron, Col } from 'reactstrap';
 
 import Ready from '../components/ready.jsx';
 import Answer from '../components/answer.jsx';
@@ -39,11 +40,12 @@ class GameStateContainer extends React.Component {
 							<div>
 								{ waiting === false ? (
 									<div>
+										<h3>{prompt.text}</h3>
 										<Answer player={player} prompt={prompt} />
 									</div>
 								) : (
 									<div>
-										<h2>Waiting for other players...</h2>
+										<h3>Waiting for other players...</h3>
 									</div>
 								) }
 							</div>
@@ -53,8 +55,11 @@ class GameStateContainer extends React.Component {
 									<div>
 									<h2>{prompt.text}</h2>
 										{ answers.map((answer, i) =>
-											<Vote key={i} player={player} answer={answer} waiting={waiting}
+											<div key={i}>
+											<Vote key={i+2} player={player} answer={answer} waiting={waiting}
 												answerers={answers.map((answer, i) => answer['player_id'])} />
+											<br key={i+4}/>
+											</div>
 										) }
 									</div>
 								) : (

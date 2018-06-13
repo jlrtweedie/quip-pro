@@ -1,6 +1,7 @@
 import React from 'react';
 import { getState } from 'redux';
 import { connect } from 'react-redux';
+// import { Jumbotron, Col } from 'reactstrap';
 
 import JoinGame from '../components/joinGame.jsx';
 import LeaveGame from '../components/leaveGame.jsx';
@@ -15,23 +16,27 @@ class JoinGameContainer extends React.Component {
     const phase = stateProps.gameState.phase;
     return (
       <div>
-        { phase === null ? (
-          <div>
-            { game === null ? (
+            { phase === null ? (
               <div>
-                <JoinGame />
-              </div>
-            ) : (
-              <div>
-                <LeaveGame game={game} player={player} />
-                <h2>Players in Game:</h2>
-                <DisplayPlayers names={names} />
-              </div>
-            ) }
-          </div>
-        ) : (
-          <div></div>
-        ) }
+              { game === null ? (
+                <div>
+                  <h2>Join Game</h2>
+                  <hr />
+                  <JoinGame />
+                  </div>
+                ) : (
+                  <div>
+                  <h2>Connected to game {game.room_id} as {player.name}</h2>
+                  <hr />
+                  <h3>Players in Game:</h3>
+                  <DisplayPlayers names={names} />
+                  <LeaveGame game={game} player={player} />
+                  </div>
+                ) }
+                </div>
+              ) : (
+                <div></div>
+              ) }
       </div>
     );
   }

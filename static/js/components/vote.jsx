@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 class Vote extends React.Component {
   constructor(props) {
@@ -20,8 +21,8 @@ class Vote extends React.Component {
   render() {
     return (
       <div>
-        <button onClick={this.handleSubmit}
-          name="vote">{this.props.answer.text}</button>
+        <Button onClick={this.handleSubmit}
+          name="vote" color="primary" block>{this.props.answer.text}</Button>
       </div>
     )
   }

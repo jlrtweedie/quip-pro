@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Jumbotron, Col } from 'reactstrap';
 
 import { createStore, applyMiddleware, combineReducers, getState } from 'redux';
 import { Provider } from 'react-redux';
@@ -36,8 +37,14 @@ class App extends React.Component {
 		return (
 			<div>
         <LoginContainer store={store} />
-				<JoinGameContainer store={store} />
-				<GameStateContainer store={store} />
+				<br />
+        <br />
+				<Col sm={{size: 8, offset:2}}>
+					<Jumbotron>
+						<JoinGameContainer store={store} />
+						<GameStateContainer store={store} />
+						</Jumbotron>
+				</Col>
       </div>
 		);
 	}
